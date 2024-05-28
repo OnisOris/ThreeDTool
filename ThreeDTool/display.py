@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 class Dspl:
-    def __init__(self, input_array, qt=True):
+    def __init__(self, input_array, qt=False):
         if qt:
             mpl.use('Qt5Agg')
         self.input_array = input_array
