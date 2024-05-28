@@ -8,6 +8,7 @@ from .twoDTool import *
 from typing import Optional
 from .curve import Curve
 
+log = False
 
 def check_position_lines(line1: Line, line2: Line) -> int:
     """
@@ -42,7 +43,7 @@ def check_position_lines(line1: Line, line2: Line) -> int:
             return 0
 
 
-def point_from_line_line_intersection(line1, line2, log=False):
+def point_from_line_line_intersection(line1, line2):
     """
     Функция возвращает точку пересечения двух линий. В случае, если линии не параллельны или не компланарны, то вернет
     False
@@ -95,7 +96,8 @@ def point_from_plane_line_intersection(line, plane) -> Optional[np.ndarray]:
         arr = np.sum([vector_line.dot(t), line_abc], axis=0)
         return arr
     else:
-        logger.debug("Прямая параллельная плоскости")
+        if log:
+            logger.debug("Прямая параллельная плоскости")
         return None
 
 def test_point_from_plane_line_intersection(line, plane) -> Optional[np.ndarray]:
@@ -121,7 +123,8 @@ def test_point_from_plane_line_intersection(line, plane) -> Optional[np.ndarray]
 
         return np.round(np.array([x, y, z]), 6)
     else:
-        logger.debug("Прямая параллельная плоскости")
+        if log:
+            logger.debug("Прямая параллельная плоскости")
         return None
 
 
@@ -247,7 +250,8 @@ def position_analyzer_of_line_and_plane(line, plane):
     elif var2 != 1:
         return 2
     else:
-        logger.error("Что-то пошло не так, таких ситуаций в реальности не существует")
+        if log:
+            logger.error("Что-то пошло не так, таких ситуаций в реальности не существует")
 
 
 def position_analyze_of_triangle(triangle, plane) -> tuple[int, None] | tuple[int, Any] | tuple[
@@ -303,7 +307,8 @@ def position_analyze_of_triangle(triangle, plane) -> tuple[int, None] | tuple[in
         elif (var1 == -1 and var3 == -1) or (var1 == 1 and var3 == 1) or (var1 == 0 and var3 == 0):
             return 2, np.array([[point1, point2], [point3, point2]])
         else:
-            logger.error("Такого случая не должно быть")
+            if log:
+                logger.error("Такого случая не должно быть")
 
 
 def point_in_plane(plane, point):

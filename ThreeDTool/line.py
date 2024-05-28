@@ -19,7 +19,7 @@ class Line:
         self._p1 = p1
         self._p2 = p2
         self._p3 = p3
-        self.logging = logging
+        self.log = logging
 
     @property
     def a(self):
@@ -101,7 +101,7 @@ class Line:
         p2 = point2[1] - point1[1]
 
         if p1 == 0 and p2 == 0 and p3 == 0:
-            if self.logging:
+            if self.log:
                 logger.error("Создать линию из двух одинаковых точек нельзя")
         else:
             mod_N = sqrt(p1 ** 2 + p2 ** 2 + p3 ** 2)
@@ -135,7 +135,8 @@ class Line:
                 p2 = p2 / mod_p
                 p3 = p3 / mod_p
             elif mod_p == 0:
-                logger.error("P - нулевой вектор")
+                if self.log:
+                    logger.error("P - нулевой вектор")
                 return True
             self._p1 = p1
             self._p2 = p2
@@ -185,9 +186,11 @@ class Line:
                 self._c = (plane2.b * plane1.d - plane2.d * plane1.b) / val3_2
                 self._b = -(plane2.c * self._c + plane2.d) / plane2.b
             else:
-                logger.debug("Zero Error")
+                if self.log:
+                    logger.debug("Zero Error")
         else:
-            logger.debug("Плоскости не пересекаются и либо параллельны, либо совпадают")
+            if self.log:
+                logger.debug("Плоскости не пересекаются и либо параллельны, либо совпадают")
             return False
 
     def point_belongs_to_the_line(self, point):
@@ -281,7 +284,8 @@ class Line_segment(Line):
         p2 = point2[1] - point1[1]
 
         if p1 == 0 and p2 == 0 and p3 == 0:
-            logger.error("Создать линию из двух одинаковых точек нельзя")
+            if self.log:
+                logger.error("Создать линию из двух одинаковых точек нельзя")
         else:
             mod_N = sqrt(p1 ** 2 + p2 ** 2 + p3 ** 2)
             # Проверка на равенство длины вектора нормали единице
@@ -330,7 +334,8 @@ class Line_segment(Line):
                 self.border_z[1]):
             return True
         elif self.point1[0] == self.point2[0] and self.point1[1] == self.point2[1] and self.point1[2] == self.point2[2]:
-            logger.debug("Нулевой отрезок")
+            if self.log:
+                logger.debug("Нулевой отрезок")
         else:
             return False
 
