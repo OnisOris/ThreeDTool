@@ -1,9 +1,5 @@
-# from plane import Plane
 from typing import Tuple, Any
-
-from fontTools.misc import vector
 from numpy import ndarray, dtype
-
 from DH_config import DH
 from line import Line, Line_segment
 import numpy as np

@@ -16,15 +16,15 @@ setup(
   long_description_content_type='text/markdown',
   url='https://github.com/OnisOris/ThreeDTool',
   packages=find_packages(),
-  install_requires=['numpy', 'matplotlib'],
+  install_requires=['numpy', 'matplotlib', 'trimesh'],
   classifiers=[
     'Programming Language :: Python :: 3.12',
     'License :: OSI Approved :: GPL-2.0',
     'Operating System :: OS Independent'
   ],
-  keywords='files speedfiles ',
+  keywords='3D math geometry',
   project_urls={
-    'GitHub': 'your_github'
+    'GitHub': 'https://github.com/OnisOris/ThreeDTool'
   },
   python_requires='>=3.6'
 )
