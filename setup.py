@@ -16,7 +16,7 @@ setup(
   long_description_content_type='text/markdown',
   url='https://github.com/OnisOris/ThreeDTool',
   packages=find_packages(),
-  install_requires=['numpy', 'matplotlib', 'trimesh', 'loguru'],
+  install_requires=['numpy', 'matplotlib', 'trimesh', 'loguru', 'PyQt5'],
   classifiers=[
     'Programming Language :: Python :: 3.12',
     'License :: OSI Approved :: GPL-2.0',
