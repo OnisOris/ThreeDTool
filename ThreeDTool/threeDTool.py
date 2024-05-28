@@ -54,10 +54,8 @@ def point_from_line_line_intersection(line1, line2, log=False):
     var = check_position_lines(line1, line2)
     if var == 2:
         if np.allclose(line1.coeffs()[3:6], 0, atol=1e-8):
-        # if line1.coeffs()[3] == 0 and line1.coeffs()[4] == 0 and line1.coeffs()[5] == 0:
             return None
         elif np.allclose(line2.coeffs()[3:6], 0, atol=1e-8):
-        # elif line2.coeffs()[3] == 0 and line2.coeffs()[4] == 0 and line2.coeffs()[5] == 0:
             return None
         if not np.allclose(line2.p1 * line1.p3, line2.p3 * line1.p1, atol=1e-8):
             # t_2^x
@@ -93,17 +91,8 @@ def point_from_plane_line_intersection(line, plane) -> Optional[np.ndarray]:
     vector_line = np.array([line.p1, line.p2, line.p3])
     if np.dot(vector_n, vector_line) != 0:
         line_abc = line.coeffs()[0:3]
-        # t = -(plane.a * line.a + plane.b * line.b + plane.c * line.c + plane.d) / (
-        #         plane.a * line.p1 + plane.b * line.p2 + plane.c * line.p3)
-        # t2 = -np.sum(line_abc.dot(vector_n), plane.d) / vector_n.dot(vector_line)
         t = - np.sum([line_abc.dot(vector_n), plane.d]) / vector_n.dot(vector_line)
-        #
-        # x = t * line.p1 + line.a
-        # y = t * line.p2 + line.b
-        # z = t * line.p3 + line.c
         arr = np.sum([vector_line.dot(t), line_abc], axis=0)
-
-        # return np.round(np.array([x, y, z]), 6)
         return arr
     else:
         logger.debug("Прямая параллельная плоскости")
@@ -229,7 +218,7 @@ def position_analyzer_of_point_and_plane(point, plane) -> int:
     :param plane:
     :return: 1, 0, -1
     """
-    var = np.round(point_in_plane(plane, point), 8)  # plane.a * point[0] + plane.b * point[1] + plane.c * point[2] + plane.d
+    var = np.round(point_in_plane(plane, point), 8)
     if var > 0:
         return 1
     if var < 0:
@@ -287,7 +276,6 @@ def position_analyze_of_triangle(triangle, plane) -> tuple[int, None] | tuple[in
     p1 = point_in_plane(plane, point1)
     p2 = point_in_plane(plane, point2)
     p3 = point_in_plane(plane, point3)
-    # a = np.allclose(p2, 0, atol=1e-6)
     if var1 == 1 and var2 == 1 and var3 == 1:
         return 1, None
     elif var1 == -1 and var2 == -1 and var3 == -1:
@@ -393,8 +381,6 @@ def point_comparison(point1, point2):
       :return: bool
     """
     n = 7
-    # if point1 is None or point2 is None:
-    #     return False
     point1 = np.round(point1, n)
     point2 = np.round(point2, n)
 
@@ -533,25 +519,17 @@ def trajectories_intersection_create(polygon, trajectories):
                     p1 = np.hstack([p1, p])
                 else:
                     p1 = np.vstack([p1, p])
-        print(p1)
         if not np.shape(p1) == (3,):
-            # p1 = p1[1:np.shape(points)[0]]
-            if p1.shape == (2,3):
+            if p1.shape == (2, 3):
                 s = Line_segment(point1=p1[0], point2=p1[1])
                 s.color = 'red'
                 s.linewidth = 6
                 segments = np.hstack([segments, s])
-
-
-
-    # points = points[1:np.shape(points)[0]]
     return segments
-
-# def angles_from_vector(vector: np.ndarray)
 
 def cut_curve(points: ndarray, path):
     import trimesh
-    from curve import Curve5xs, Curve5x, Curve
+    from .curve import Curve5xs, Curve5x, Curve
     your_mesh = trimesh.load_mesh(path)
     arr = np.array([])
     var_mem = False
@@ -566,10 +544,6 @@ def cut_curve(points: ndarray, path):
         var_mem = var
     return arr
 
-def angles(curves5x):
-    for curve in curves5x:
-        curve.curve_array
-
 class Points:
     def __init__(self, xyz: np.ndarray[:, 3], color='green', s=1, marker='o', method='scatter', text=False):
         self.text = text
@@ -580,8 +554,6 @@ class Points:
         self.marker = marker
 
     def show(self, ax):
-        # if annotate:
-        #     ax.text(self.xyz[0], self.xyz[1], self.xyz[2], f'{np.round(self.xyz[0], 4)}, {np.round(self.xyz[1], 4)}, {np.round(self.xyz[2], 4)}')
         if self.method == 'plot':
             ax.plot(self.xyz.T[0], self.xyz.T[1], self.xyz.T[2], color=self.color)
         elif self.method == 'scatter':
