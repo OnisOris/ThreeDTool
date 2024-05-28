@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 class Parser_stl:
-    #def __init__(self):
     def parse_stl(self, file):
         text = file.read()
         index_space = text.find(" ")

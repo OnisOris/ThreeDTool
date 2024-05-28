@@ -1,13 +1,12 @@
 from typing import Tuple, Any
 from numpy import ndarray, dtype
-from DH_config import DH
-from line import Line, Line_segment
+from .line import Line, Line_segment
 import numpy as np
 from loguru import logger
 from math import sqrt
-from twoDTool import *
+from .twoDTool import *
 from typing import Optional
-from curve import Curve
+from .curve import Curve
 
 
 def check_position_lines(line1: Line, line2: Line) -> int:
@@ -395,7 +394,7 @@ def point_comparison(point1, point2):
     Функция проверяет равенство двух точек. В случае равенства возвращает True, иначе False
     :param point1:
     :param point2:
-    :return: bool
+      :return: bool
     """
     n = 7
     # if point1 is None or point2 is None:
@@ -415,15 +414,6 @@ def point_comparison(point1, point2):
 
 def line_triangle_intersection(line: Line, triangle):
     point = point_from_plane_line_intersection(line, triangle)
-    # logger.debug(point)
-    # logger.debug(triangle.get_vertexes())
-    # from display import Dspl
-    # try:
-    #     po = Points(point)
-    #     dp = Dspl([line, triangle, po])
-    #     dp.show()
-    # except AttributeError:
-    #     print("AttributeError")
     if point is not None:
         if triangle.point_analyze(point):
             return point
@@ -431,29 +421,12 @@ def line_triangle_intersection(line: Line, triangle):
             return False
     else:
         return False
-    # 26
-    # [[-2.628688  8.090116  5.257376]
-    #  [-7.236073  5.257253  4.472195]
-    # [-4.253227
-    # 3.090114
-    # 8.506542]]
 def beam_triangle_intersection(beam: Line, triangle):
     point = line_triangle_intersection(beam, triangle)
-    # logger.debug(point)
-    # from display import Dspl
-    # try:
-    #     po = Points(point)
-    #     dp = Dspl([beam, triangle, po])
-    #     dp.show()
-    # except AttributeError:
-    #     print("AttributeError")
-    # except IndexError:
-    #     print("IndexError")
     if point is not None and point is not False:
         beam_abc = beam.coeffs()[0:3]
         beam_p = beam.coeffs()[3:6]
         D = - beam_abc.dot(beam_p)
-        # var = beam.p1 * point[0] + beam.p2 * point[1] + beam.p3 * point[2] + D
         var = np.sum([beam_p.dot(point), D])
         if var >= 0:
             return point
@@ -495,9 +468,8 @@ def matrix_dot_all(self, array_matrix):
     T0_2 = array_matrix[0].dot(array_matrix[1])
     return T0_2
 
-def matrix_create(cja):
+def matrix_create(cja, DH):
     from numpy import (sin, cos)
-    from DH_config import DH
     T = np.eye(4, 4)
     for i, item in enumerate(cja):
         d = DH[f'displacement_theta_{i + 1}']

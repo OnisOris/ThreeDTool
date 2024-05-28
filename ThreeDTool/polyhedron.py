@@ -1,4 +1,4 @@
-from ThreeDTool.ThreeDTool.threeDTool import *
+from .threeDTool import *
 class Polyhedron:
     def __init__(self, triangles):
         self.triangles = triangles

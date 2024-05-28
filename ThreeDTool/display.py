@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-# mpl.use('TkAgg')
 
 class Dspl:
     def __init__(self, input_array, qt=True):
@@ -10,7 +9,6 @@ class Dspl:
         self.fig = None
         self.ax = None
         self.create_subplot3D()
-        # input_array[0].show(self.ax)
 
     def create_subplot3D(self):
         self.fig = plt.figure()

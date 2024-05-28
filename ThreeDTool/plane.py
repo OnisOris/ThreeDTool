@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
-from ThreeDTool.ThreeDTool.threeDTool import *
-from twoDTool import *
+from .twoDTool import *
+from .line import Line_segment, Line
+from .threeDTool import *
 
 
 class Plane:

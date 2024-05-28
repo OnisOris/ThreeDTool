@@ -1,7 +1,5 @@
 import numpy as np
 from math import acos
-from loguru import logger
-# from plane import Plane
 
 
 def angle_from_vectors_2d(v1, v2):
