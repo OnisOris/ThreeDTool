@@ -136,18 +136,16 @@ class Plane:
         point4 = np.array([x4, y4, z4])
 
         matrix_x_y_z = self.full_vstack([point1, point2, point3, point4, point1]).T
-        # logger.debug(matrix_x_y_z)
         points = np.array([[x1, y1, 0], [x2, y2, 0], [x3, y3, 0], [x4, y4, 0], [x1, y1, 0]])
         matrix_points = self.full_vstack(points).T
-        # logger.debug(matrix_x_y_z)
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         ax.set_xlabel("X", fontsize=15, color='red')
         ax.set_ylabel("Y", fontsize=15, color='green')
         ax.set_zlabel("Z", fontsize=15, color='blue')
 
-        figure = ax.plot(matrix_x_y_z[0], matrix_x_y_z[1], matrix_x_y_z[2], c='r')
-        figure2 = ax.plot(matrix_points[0], matrix_points[1], matrix_points[2], c='g')
+        ax.plot(matrix_x_y_z[0], matrix_x_y_z[1], matrix_x_y_z[2], c='r')
+        ax.plot(matrix_points[0], matrix_points[1], matrix_points[2], c='g')
 
         points_proj = np.array([[points[0], point1],
                                 [points[1], point2],
@@ -354,7 +352,6 @@ class Triangle(Plane):
             arr = np.array([[0, 0, 0]])
             for i, item in enumerate(self.__line_segments):
                 p = np.array(point_from_beam_segment_intersection(line, item))
-                # logger.debug(p)
                 if np.shape(p) == (3,):
                     arr = np.vstack([arr, p])
             arr = arr[1:np.shape(arr)[0]]
@@ -362,18 +359,11 @@ class Triangle(Plane):
             idx = np.array([])
             for i, item in enumerate(arr):
                 if point_comparison(item, point):
-                    # logger.debug(point_comparison(item, point))
                     idx = np.hstack([idx, i])
-            # logger.debug(idx)
             if np.shape(idx)[0] != 0:
                 idx = idx.astype("int")
                 arr = np.delete(arr, idx, axis=0)
-            # logger.debug(arr)
             var = (np.shape(arr)[0]) % 2
-            # if np.shape(arr)[0] == 1:
-            #     return True
-            # else:
-            #     return False
             if var == 0:
                 return False
             else:
@@ -446,9 +436,7 @@ class Polygon:
 
         for i, item in enumerate(arr):
             if point_comparison(item, point):
-                # logger.debug(point_comparison(item, point))
                 idx = np.hstack([idx, i])
-        # logger.debug(idx)
         if np.shape(idx)[0] != 0:
             idx = idx.astype("int")
             arr = np.delete(arr, idx, axis=0)
@@ -469,21 +457,16 @@ class Polygon:
         arr = np.array([[0, 0, 0]])
         for i, item in enumerate(self.__line_segments):
             p = np.array(point_from_beam_segment_intersection(line, item))
-            # logger.debug(p)
             if np.shape(p) == (3,):
                 arr = np.vstack([arr, p])
-                # logger.debug(p)
         arr = arr[1:np.shape(arr)[0]]
         if np.shape(point)[0] == 2:
             point = np.hstack([point, 0])
         arr = np.unique(arr, axis=0)
         idx = np.array([])
-        # logger.debug(arr)
         for i, item in enumerate(arr):
-            # logger.debug(f"item = {item} point = {point}")
             if point_comparison(item, point):
                 idx = np.hstack([idx, i])
-                # logger.debug(f"idx = {idx}")
         if np.shape(idx)[0] != 0:
             idx = idx.astype("int")
             arr = np.delete(arr, idx, axis=0)
@@ -547,9 +530,7 @@ class Polygon_2D:
 
         for i, item in enumerate(arr):
             if point_comparison(item, point):
-                # logger.debug(point_comparison(item, point))
                 idx = np.hstack([idx, i])
-        # logger.debug(idx)
         if np.shape(idx)[0] != 0:
             idx = idx.astype("int")
             arr = np.delete(arr, idx, axis=0)
@@ -570,21 +551,16 @@ class Polygon_2D:
         arr = np.array([[0, 0, 0]])
         for i, item in enumerate(self.__line_segments):
             p = np.array(point_from_beam_segment_intersection(line, item))
-            # logger.debug(p)
             if np.shape(p) == (3,):
                 arr = np.vstack([arr, p])
-                # logger.debug(p)
         arr = arr[1:np.shape(arr)[0]]
         if np.shape(point)[0] == 2:
             point = np.hstack([point, 0])
         arr = np.unique(arr, axis=0)
         idx = np.array([])
-        # logger.debug(arr)
         for i, item in enumerate(arr):
-            # logger.debug(f"item = {item} point = {point}")
             if point_comparison(item, point):
                 idx = np.hstack([idx, i])
-                # logger.debug(f"idx = {idx}")
         if np.shape(idx)[0] != 0:
             idx = idx.astype("int")
             arr = np.delete(arr, idx, axis=0)

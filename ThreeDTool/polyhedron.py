@@ -45,9 +45,6 @@ class Polyhedron:
             p = beam_triangle_intersection(line, item)
             if np.shape(p) == (3,):
                 arr = np.vstack([arr, p])
-        # logger.debug(arr)
-        # arr = np.round(arr, 2)
-        # logger.debug(arr)
         arr = np.unique(arr[1:np.shape(arr)[0]], axis=0)
         idx = np.array([])
         for i, item in enumerate(arr):
@@ -56,10 +53,7 @@ class Polyhedron:
         if np.shape(idx)[0] != 0:
             idx = idx.astype("int")
             arr = np.delete(arr, idx, axis=0)
-        # logger.debug(arr)
         var = (np.shape(arr)[0]) % 2
-        # if np.shape(arr)[0] == 1:
-        # logger.debug(var)
         if var != 0:
             return True
         else:

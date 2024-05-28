@@ -160,9 +160,6 @@ def point_from_beam_segment_intersection(beam, segment):
     if point.__class__ == False.__class__:
         return False
     D = - beam.coeffs()[0:3].dot(beam.coeffs()[3:6])
-    # D = - beam.a * beam.p1 - beam.b * beam.p2 - beam.c * beam.p3
-    # var = np.round(beam.p1 * point[0] + beam.p2 * point[1] + beam.p3 * point[2] + D, 8)
-    # logger.debug(beam.coeffs)
     var = np.sum([beam.coeffs()[3:6].dot(point), D])
     if var >= 0 or np.allclose(var, 0, atol=1e-8):
         if point.__class__ != None.__class__:
@@ -336,7 +333,6 @@ def distance_between_two_points(point1, point2) -> float:
     :return: Distance between two points
     """
     array = np.sort(np.array([point1, point2]))
-    # logger.debug(array)
     if array[0] < 0 <= array[1]:
         return float(abs(array[0]) + array[1])
     elif array[0] >= 0:

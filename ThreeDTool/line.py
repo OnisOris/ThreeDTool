@@ -250,53 +250,6 @@ class Line_segment(Line):
         self.border_z.sort()
         self.lenth = np.linalg.norm(self.point1 - self.point2)
 
-    # @property
-    # def a(self):
-    #     return self.__a
-    #
-    # @property
-    # def b(self):
-    #     return self.__b
-    #
-    # @property
-    # def c(self):
-    #     return self.__c
-    #
-    # @property
-    # def p1(self):
-    #     return self.__p1
-    #
-    # @property
-    # def p2(self):
-    #     return self.__p2
-    #
-    # @property
-    # def p3(self):
-    #     return self.__p3
-    #
-    # @a.setter
-    # def a(self, a):
-    #     self.__a = a
-    #
-    # @b.setter
-    # def b(self, b):
-    #     self.__b = b
-    #
-    # @c.setter
-    # def c(self, c):
-    #     self.__c = c
-    #
-    # @p1.setter
-    # def p1(self, p1):
-    #     self.__p1 = p1
-    #
-    # @p2.setter
-    # def p2(self, p2):
-    #     self.__p2 = p2
-    #
-    # @p3.setter
-    # def p3(self, p3):
-    #     self.__p3 = p3
 
     def info(self) -> None:
         logger.debug(
@@ -385,12 +338,4 @@ class Line_segment(Line):
         return np.vstack([self.point1, self.point2])
     def show(self, ax):
         vT = self.get_points().T
-        ax.plot(vT[0], vT[1], vT[2], 'm', color=self.color, linewidth=self.linewidth)
-    # def lsftp(self, triangle, plane):
-    #     '''
-    #      Line segment from triangle and plane или сокращенно lsftp
-    #     :return:
-    #     '''
-    #     pat = position_analyze_of_triangle(triangle.triangle_array())
-    #     # if pat == 2:
-    #     #     point1 = point_from_plane_line_intersection()
+        ax.plot(vT[0], vT[1], vT[2], color=self.color, linewidth=self.linewidth)
