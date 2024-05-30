@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
+
 class Dspl:
     def __init__(self, input_array, qt=False):
         if qt:
@@ -16,10 +17,8 @@ class Dspl:
         self.ax.set_xlabel('X Label')
         self.ax.set_ylabel('Y Label')
         self.ax.set_zlabel('Z Label')
+
     def show(self):
         for obj in self.input_array:
             obj.show(self.ax)
         plt.show()
-
-
-
