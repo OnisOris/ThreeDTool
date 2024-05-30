@@ -1,19 +1,23 @@
 from typing import Tuple, Any
 from numpy import ndarray, dtype
+
+from .plane import Plane
 from .line import Line, Line_segment
 import numpy as np
 from loguru import logger
-from math import sqrt
 from .twoDTool import *
 from typing import Optional
 from .curve import Curve
 
 log = False
 
+
 def check_position_lines(line1: Line, line2: Line) -> int:
     """
-    :param line1:
-    :param line2:
+    :param line1: Первая линия
+    :type line1: Line
+    :param line2: Вторая линия
+    :type line2: Line
     :return: 0 - если линии не компланарны, 1 - если прямые компланарны параллельны, 2 - если прямые компланарны и
     не параллельны 3, если линии совпадают
     """
@@ -47,9 +51,11 @@ def point_from_line_line_intersection(line1, line2):
     """
     Функция возвращает точку пересечения двух линий. В случае, если линии не параллельны или не компланарны, то вернет
     False
-    :param line1:
-    :param line2:
-    :return: ndarray([x, y, z])
+    :param line1: Первая линия
+    :type line1: Line
+    :param line2: Вторая линия
+    :type line2: Line
+    :return: np.ndarray([x, y, z])
     """
     # Проверка на принадлежность одной плоскости
     var = check_position_lines(line1, line2)
@@ -83,9 +89,11 @@ def point_from_line_line_intersection(line1, line2):
 def point_from_plane_line_intersection(line, plane) -> Optional[np.ndarray]:
     """
     Функция находит координаты точки пересечения линии line и плоскости plane.
-    :param line:
-    :param plane:
-    :return: [x, y, z] or None
+    :param line: Объект линии
+    :type line: Line
+    :param plane: объект класса плоскости
+    :type plane: Plane
+    :return: np.ndarray[x, y, z] or None
     """
     # Проверка на параллельность линии плоскости
     vector_n = np.array([plane.a, plane.b, plane.c])
@@ -100,35 +108,18 @@ def point_from_plane_line_intersection(line, plane) -> Optional[np.ndarray]:
             logger.debug("Прямая параллельная плоскости")
         return None
 
-def test_point_from_plane_line_intersection(line, plane) -> Optional[np.ndarray]:
-    """
-    Функция находит координаты точки пересечения линии line и плоскости plane.
-    :param line:
-    :param plane:
-    :return: [x, y, z] or None
-    """
-    # Проверка на параллельность линии плоскости
-    vector_n = np.array([plane.a, plane.b, plane.c])
-    vector_line = np.array([line.p1, line.p2, line.p3])
-    if np.dot(vector_n, vector_line) != 0:
-        line_abc = line.coeffs()[0:3]
-
-        t = - (plane.a * line.a + plane.b * line.b + plane.c * line.c + plane.d) / (
-                plane.a * line.p1 + plane.b * line.p2 + plane.c * line.p3)
-        t = - (np.sum(line_abc.dot(vector_n)), plane.d) / vector_n.dot(vector_line)
-
-        x = t * line.p1 + line.a
-        y = t * line.p2 + line.b
-        z = t * line.p3 + line.c
-
-        return np.round(np.array([x, y, z]), 6)
-    else:
-        if log:
-            logger.debug("Прямая параллельная плоскости")
-        return None
-
 
 def point_from_line_segment_intersection(line, segment):
+    """
+    Функция находит точку пересечения линии и отрезка. В случае, если линия и отрезок не пересекаются,
+    то возвращается None
+    :param line: Объект линии
+    :type line: Line
+    :param segment: Объект отрезка
+    :type segment: Line_segment
+    :return: np.ndarray[x, y, z] or None
+
+    """
     point = point_from_line_line_intersection(line, segment)
     if point.__class__ != None.__class__:
         if segment.point_belongs_to_the_segment(point):
@@ -143,9 +134,11 @@ def point_from_beam_segment_intersection(beam, segment):
     """
     Функция возвращает точку пересечения луча и отрезка. Если луч ничего не пересекает, возвращается False.
     В качестве луча используется объект линии, где началом считается точка [a, b, c], а вектор направления [p1, p2, p3]
-    :param beam: Line
-    :param segment:
-    :return:
+    :param beam: Луч, описываемый уравнением линии
+    :type beam: Line
+    :param segment: Объект отрезка
+    :type segment: Line_segment
+    :return: np.ndarray[x, y, z] or None
     """
     point = point_from_line_line_intersection(beam, segment)
 
@@ -164,7 +157,16 @@ def point_from_beam_segment_intersection(beam, segment):
     else:
         return False
 
+
 def point_from_segment_segment_intersection(segment1, segment2):
+    """
+    Функция возвращает точку пересечения двух отрезков
+    :param segment1: Объект первого отрезка
+    :type segment1: Line_segment
+    :param segment2: Объект второго отрезка
+    :type segment2: Line_segment
+    :return: np.ndarray[x, y, z] or None
+    """
     point = point_from_line_line_intersection(segment1, segment2)
     if isinstance(point, ndarray):
         if segment1.point_belongs_to_the_segment(point) and segment2.point_belongs_to_the_segment(point):
@@ -175,28 +177,13 @@ def point_from_segment_segment_intersection(segment1, segment2):
         return None
 
 
-def perpendicular_line(line, left=False):
-    """
-    Функция возвращает линию перпендикулярную данной в 2D пространстве
-    :param line:
-    :return:
-    """
-    vector = line.coeffs()[3:5]
-    if left:
-        angle = -90
-    else:
-        angle = 90
-    new_vector = vector_rotation(vector, angle, grad=True)
-    new_line = Line(line.a, line.b, line.c, new_vector[0], new_vector[1], 0)
-    return new_line
-
-
 def max_min_points(triangles):
     """
     Функция принимает массив из координат треугольников и возвращает минимальные максимальные точки x, y, z в виде
     списка max = [x_max, y_max, z_max], min = [x_min, y_min, z_min]
-    :param triangles:
-    :return: [x_max, y_max, z_max], [x_min, y_min, z_min]
+    :param triangles: Массив 4x3, где первая строка - нормаль треугольника
+    :type triangles: np.ndarray[float, int]
+    :return: np.ndarray[x_max, y_max, z_max], np.ndarray[x_min, y_min, z_min]
     """
     x = np.array([])
     y = np.array([])
@@ -205,12 +192,12 @@ def max_min_points(triangles):
         x = np.append(x, triangles[:][i].T[0][1:4])
         y = np.append(y, triangles[:][i].T[1][1:4])
         z = np.append(z, triangles[:][i].T[2][1:4])
-    max_xyz = [np.max(x), np.max(y), np.max(z)]
-    min_xyz = [np.min(x), np.min(y), np.min(z)]
+    max_xyz = np.array([np.max(x), np.max(y), np.max(z)])
+    min_xyz = np.array([np.min(x), np.min(y), np.min(z)])
     return max_xyz, min_xyz
 
 
-def position_analyzer_of_point_and_plane(point, plane) -> int:
+def position_analyzer_of_point_and_plane(point: list or np.ndarray, plane: Plane) -> int:
     """
     Функция принимает точку в виде списка [x, y, z] и плоскость класса Plane. Функция говорит, по какую сторону от
     плоскости лежит точка.
@@ -218,7 +205,8 @@ def position_analyzer_of_point_and_plane(point, plane) -> int:
     0 - точка лежит на плоскости;
     -1 - точка лежит за плоскостью (в противоположную сторону от направления нормали).
     :param point:
-    :param plane:
+    :type point: np.ndarray or list
+    :param plane: Plane
     :return: 1, 0, -1
     """
     var = np.round(point_in_plane(plane, point), 8)
@@ -230,12 +218,14 @@ def position_analyzer_of_point_and_plane(point, plane) -> int:
         return 0
 
 
-def position_analyzer_of_line_and_plane(line, plane):
+def position_analyzer_of_line_and_plane(line: Line, plane: Plane):
     '''
     Функция анализирует положение линии относительно плоскости. Линия может быть: параллельна плоскости, лежать в ней,
     пересекать плоскость в точке.
-    :param line:
-    :param plane:
+    :param line: Объект линии
+    :type line: Line
+    :param plane: Объект плоскости
+    :type plane: Plane
     :return: 0, если линия пренадлежит плоскости, 1, если линия параллельна плоскости и не принадлежит ей, 2, если
     линия не параллельна плоскости и пересекает ее в какой-то точке
     '''
@@ -254,8 +244,8 @@ def position_analyzer_of_line_and_plane(line, plane):
             logger.error("Что-то пошло не так, таких ситуаций в реальности не существует")
 
 
-def position_analyze_of_triangle(triangle, plane) -> tuple[int, None] | tuple[int, Any] | tuple[
-    int, ndarray[Any, dtype[Any]]]:
+def position_analyze_of_triangle(triangle: list | np.ndarray, plane: Plane) -> (tuple[int, None] | tuple[int, Any] |
+                                                                                tuple[int, ndarray[Any, dtype[Any]]]):
     """
     Функция принимает массив треугольников 4x3, где строка 1 - вектор нормали, строки 2-4 - это координаты вершин
     треугольников и плоскость класса Plane и говорит о местоположении треугольника относительно этой плоскости.
@@ -267,8 +257,10 @@ def position_analyze_of_triangle(triangle, plane) -> tuple[int, None] | tuple[in
     -2, [x, y, z] - только одна вершина треугольника лежит в плоскости
     (в противоположную сторону от направления нормали). Также возвращается точка вершины, которая лежит в плоскости.
 
-    :param triangle:
-    :param plane:
+    :param triangle: Массив треугольника
+    :type triangle: np.ndarray
+    :param plane: Объект плоскости
+    :type plane: Plane
     :return: 2, 1, 0, -1
     """
     point1 = triangle[1]
@@ -312,18 +304,27 @@ def position_analyze_of_triangle(triangle, plane) -> tuple[int, None] | tuple[in
 
 
 def point_in_plane(plane, point):
+    """
+    Функция проверяет факт принадлежности точки плоскости
+    :param plane: Объект плоскости
+    :type plane: Plane
+    :param point: Массив точки [x, y, z]
+    :type point: list | np.ndarray
+    :return: float | int
+    """
     var = plane.a * point[0] + plane.b * point[1] + plane.c * point[2] + plane.d
     return var
 
 
-def distance_between_two_points(point1, point2) -> float:
+def distance_between_two_points(point1: float | int, point2: float | int) -> float:
     """
     Данная функция берет две точки с прямой (одномерное пространство) и возвращает расстояние между ними.
     Примечание: принимает два числа float.
-    TODO: перепроверить
-    :param point1:
-    :param point2:
-    :return: Distance between two points
+    :param point1: Первая точка типа x
+    :type point1: int | float
+    :param point2: Вторая точка типа x
+    :type point2: float | int
+    :return: float
     """
     array = np.sort(np.array([point1, point2]))
     if array[0] < 0 <= array[1]:
@@ -408,6 +409,8 @@ def line_triangle_intersection(line: Line, triangle):
             return False
     else:
         return False
+
+
 def beam_triangle_intersection(beam: Line, triangle):
     point = line_triangle_intersection(beam, triangle)
     if point is not None and point is not False:
@@ -421,7 +424,9 @@ def beam_triangle_intersection(beam: Line, triangle):
             return None
     else:
         return None
-def loxodrome(angle=0, R = 70, count_of_rot=17, step=0.0025, point_n=np.array([0, 0, 0])):
+
+
+def loxodrome(angle=0, R=70, count_of_rot=17, step=0.0025, point_n=np.array([0, 0, 0])):
     v_angle_unit = np.pi / R / 2
     h_angle_unit = np.pi / R * count_of_rot * step
     xr = angle / 180 * np.pi
@@ -439,21 +444,25 @@ def loxodrome(angle=0, R = 70, count_of_rot=17, step=0.0025, point_n=np.array([0
         arr = np.vstack([arr, [v[0], pnt_y, pnt_z]])
         total_rot += h_angle_unit
         i += step
-    if arr.shape != (3, ):
+    if arr.shape != (3,):
         arr = arr[1:np.shape(arr)[0]]
     return arr + point_n
+
+
 def generate_loxodromes(r=10, r_c=0, layer_height=0.2, point_n=np.array([0, 0, 0]), steps=0.0025):
-    count_of_layer = r/layer_height - r_c/layer_height
-    step = (r-r_c)/count_of_layer
+    count_of_layer = r / layer_height - r_c / layer_height
+    step = (r - r_c) / count_of_layer
     curves = np.array([])
     for i in range(int(count_of_layer)):
-        curves = np.hstack([curves, Curve(loxodrome(R=r-i*step, angle=90, count_of_rot=17,
+        curves = np.hstack([curves, Curve(loxodrome(R=r - i * step, angle=90, count_of_rot=17,
                                                     step=steps, point_n=point_n))])
     return curves
+
 
 def matrix_dot_all(self, array_matrix):
     T0_2 = array_matrix[0].dot(array_matrix[1])
     return T0_2
+
 
 def matrix_create(cja, DH):
     from numpy import (sin, cos)
@@ -471,11 +480,12 @@ def matrix_create(cja, DH):
              [0, 0, 0, 1]])
     return np.array(T)
 
+
 def show_ijk(ax, matrix: ndarray[4, 4]):
     ijk = np.array([[1, 0, 0, 0],
                     [0, 1, 0, 0],
                     [0, 0, 1, 0],
-                     [0, 0, 0, 1]])
+                    [0, 0, 0, 1]])
     rotate = ijk.dot(matrix)
     n = rotate[0:3, 3]
     ax.text(n[0], n[1], n[2], f"{n[0], n[1], n[2]}", color='red')
@@ -484,34 +494,37 @@ def show_ijk(ax, matrix: ndarray[4, 4]):
         if i == 3:
             break
         ax.quiver(n[0], n[1], n[2], vector[0], vector[1], vector[2], color=colors[i])
+
+
 def angles_from_vector(curve):
     alpha = np.arctan2(curve[7], curve[6])
     beta = np.arctan2(curve[4], curve[5])
     return alpha, beta
 
-    
 
 def trajectory_generate(h=10, line_width=1, point_n=np.array([0, 0, 0])):
     v = np.array([])
-    count = range(int(h/line_width))
+    count = range(int(h / line_width))
     for i in count:
-        j = i*line_width
+        j = i * line_width
         v = np.hstack([v, j, j, -j, -j])
-        if i == np.shape(count)[0]-1:
+        if i == np.shape(count)[0] - 1:
             v = np.hstack([v, -j, j])
     x = v[2:-1]
     y = v[3:]
 
     return np.vstack([x, y, np.zeros(np.shape(x)[0])])
 
+
 def line_segments_array_create_from_points(points):
     arr = np.array([])
     for i, point in enumerate(points):
-        if i == np.shape(points)[0]-1:
+        if i == np.shape(points)[0] - 1:
             break
-        arr = np.hstack([arr, Line_segment(point1=point, point2=points[i+1])])
+        arr = np.hstack([arr, Line_segment(point1=point, point2=points[i + 1])])
     arr = arr[1:np.shape(arr)[0]]
     return arr
+
 
 def trajectories_intersection_create(polygon, trajectories):
     segments = np.array([])
@@ -532,6 +545,7 @@ def trajectories_intersection_create(polygon, trajectories):
                 segments = np.hstack([segments, s])
     return segments
 
+
 def cut_curve(points: ndarray, path):
     import trimesh
     from .curve import Curve5xs, Curve5x, Curve
@@ -548,22 +562,3 @@ def cut_curve(points: ndarray, path):
             arr = np.hstack([arr, new_curve])
         var_mem = var
     return arr
-
-class Points:
-    def __init__(self, xyz: np.ndarray[:, 3], color='green', s=1, marker='o', method='scatter', text=False):
-        self.text = text
-        self.method = method
-        self.xyz = np.array(xyz)
-        self.color = color
-        self.s = s
-        self.marker = marker
-
-    def show(self, ax):
-        if self.method == 'plot':
-            ax.plot(self.xyz.T[0], self.xyz.T[1], self.xyz.T[2], color=self.color)
-        elif self.method == 'scatter':
-            ax.scatter(self.xyz.T[0], self.xyz.T[1], self.xyz.T[2], color=self.color, s=self.s, marker=self.marker)
-        if self.text:
-            for point in self.xyz:
-                ax.text(point[0], point[1], point[2], f"center point: \n {point[0], point[1], point[2]}", color='blue')
-
