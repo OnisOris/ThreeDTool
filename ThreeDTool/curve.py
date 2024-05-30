@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class Curve():
+class Curve:
     """
     Класс представляет траекторию в 3D пространстве
     """
@@ -41,7 +41,8 @@ class Curve5x(Curve):
             ax.quiver(item[0], item[1], item[2], item[3], item[4], item[5],
                       length=self.length, color='r')
             ax.quiver(item[0], item[1], item[2], item[6], item[7], item[8],
-                      length=self.length*6, color='b')
+                      length=self.length * 6, color='b')
+
 
 class Curve5xs(Curve):
     """
