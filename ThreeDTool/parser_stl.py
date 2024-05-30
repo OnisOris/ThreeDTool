@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+
 class Parser_stl:
     def parse_stl(self, file):
         text = file.read()
@@ -50,5 +52,5 @@ class Parser_stl:
                 z = np.hstack([z, np.hstack([np.array(matrix[:, 2]), np.array(matrix[:, 2])[1]])[1:]])
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
-        figure = ax.plot(x, y, z, c='r')
+        ax.plot(x, y, z, c='r')
         plt.show()
