@@ -1,7 +1,12 @@
 import matplotlib.pyplot as plt
 from .twoDTool import *
-from .line import Line_segment, Line
-from .threeDTool import *
+
+
+def full_vstack(vector):
+    entry_point = vector[0]
+    for element in vector:
+        entry_point = np.vstack([entry_point, element])
+    return entry_point
 
 
 class Plane:
@@ -86,6 +91,9 @@ class Plane:
         нормали vector_N создается автоматически
         :return: None
         """
+        from .threeDTool import normal_of_triangle
+        from numpy import sqrt
+
         if create_normal:
             vector_N = normal_of_triangle(triangle[0], triangle[1], triangle[2])
         else:
@@ -135,9 +143,9 @@ class Plane:
             z4 = -hight / 2
         point4 = np.array([x4, y4, z4])
 
-        matrix_x_y_z = self.full_vstack([point1, point2, point3, point4, point1]).T
+        matrix_x_y_z = full_vstack([point1, point2, point3, point4, point1]).T
         points = np.array([[x1, y1, 0], [x2, y2, 0], [x3, y3, 0], [x4, y4, 0], [x1, y1, 0]])
-        matrix_points = self.full_vstack(points).T
+        matrix_points = full_vstack(points).T
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         ax.set_xlabel("X", fontsize=15, color='red')
@@ -222,347 +230,5 @@ class Plane:
             point_x = (-self.__b * point_y - self.__c * point_z - self.__d) / self.__a
             return point_x
 
-    def full_vstack(self, vector):
-        entry_point = vector[0]
-        for element in vector:
-            entry_point = np.vstack([entry_point, element])
-        return entry_point
 
-
-class Triangle(Plane):
-    """
-    Класс треугольника. При инициализации объекта происходит проверка на количество составляющих.
-    Если np.shape(vertexes)[0] == 3, то считается, что в класс подаются вершины треугольника. Тогда нормаль считается
-    по принципу правого винта, где напрвление задает порядок вершин.
-    Если np.shape(vertexes)[0] == 4, то 4я координата - вектор нормали
-
-    """
-
-    def __init__(self, vertexes, auto_create_normal=False):
-        super().__init__()
-        self.__line_segments = None
-        if np.shape(vertexes)[0] == 3 or auto_create_normal:
-            self.__vertex1 = np.array(vertexes[0])
-            self.__vertex2 = np.array(vertexes[1])
-            self.__vertex3 = np.array(vertexes[2])
-            self.__normal = normal_of_triangle(self.__vertex1, self.__vertex2, self.__vertex3)
-            self.create_plane_from_triangle(np.array([self.__normal, self.__vertex1, self.__vertex2, self.__vertex3]))
-        if np.shape(vertexes)[0] == 4:
-            self.__vertex1 = np.array(vertexes[1])
-            self.__vertex2 = np.array(vertexes[2])
-            self.__vertex3 = np.array(vertexes[3])
-            mod = np.linalg.norm(vertexes[0])
-            self.__normal = np.array(vertexes[0] / mod)
-            self.create_plane_from_triangle(np.array([self.__normal, self.__vertex1, self.__vertex2, self.__vertex3]))
-        self.__barycenter = None
-        self.set_barycenter()
-        self.line_segments_create()
-
-
-    @property
-    def vertex1(self):
-        return self.__vertex1
-
-    @property
-    def vertex2(self):
-        return self.__vertex2
-
-    @property
-    def vertex3(self):
-        return self.__vertex3
-
-    @property
-    def normal(self):
-        return self.__normal
-
-    @property
-    def barycenter(self):
-        return self.__barycenter
-
-    @vertex1.setter
-    def vertex1(self, vertex1):
-        self.__vertex1 = vertex1
-
-    @vertex2.setter
-    def vertex2(self, vertex2):
-        self.__vertex2 = vertex2
-
-    @vertex3.setter
-    def vertex3(self, vertex3):
-        self.__vertex3 = vertex3
-
-    @normal.setter
-    def normal(self, normal):
-        self.__normal = normal
-
-    @barycenter.setter
-    def barycenter(self, barycenter):
-        self.__barycenter = barycenter
-
-    def set_barycenter(self):
-        arr = np.array([self.__vertex1,
-                        self.__vertex2,
-                        self.__vertex3])
-        xyz_mean = arr.mean(axis=0)
-        self.__barycenter = xyz_mean
-
-    def line_segments_create(self):
-        line1 = Line_segment()
-        line2 = Line_segment()
-        line3 = Line_segment()
-        line1.segment_create_from_points(self.__vertex1, self.__vertex2)
-        line2.segment_create_from_points(self.__vertex2, self.__vertex3)
-        line3.segment_create_from_points(self.__vertex3, self.__vertex1)
-        self.__line_segments = np.array([line1, line2, line3])
-
-    def show(self, ax) -> None:
-        vT = self.get_vertexes()
-        vT = np.vstack([vT, self.get_vertexes()[0]]).T
-        ax.plot(vT[0], vT[1], vT[2])
-
-
-    def get_vertexes(self):
-        return np.array([self.__vertex1, self.__vertex2, self.__vertex3])
-    def get_mean_vertexes(self):
-        return np.array([self.__vertex1, self.__vertex2, self.__vertex3]).mean(axis=0)
-
-    def triangle_array(self):
-        return np.array([self.__normal, self.__vertex1, self.__vertex2, self.__vertex3])
-
-    def point_analyze(self, point: np.ndarray):
-        """
-        Функция принимает точку и проверяет, находится ли точка внутри границ треугольника в трехмерном пространстве
-        путем подсчета числа
-        пересечений с границами треугольника.
-        :param point: np.ndarray
-        :return: bool
-        """
-
-        # проверка принадлежности точки плоскости треугольника.
-        # print(np.round(point_in_plane(self, point), 10))
-        # print(point_in_plane(self, self.barycenter))
-        p_in_plane = np.allclose(point_in_plane(self, point), 0, atol=1e-6)
-        if p_in_plane:
-            line = Line()
-            test_point = self.barycenter  #self.__vertex1
-            if point_comparison(point, self.barycenter):
-                test_point = self.vertex1
-            # создание линии из оцениваемой точки в барицентр или в одну из вершин
-            line.line_create_from_points(point, test_point)
-            arr = np.array([[0, 0, 0]])
-            for i, item in enumerate(self.__line_segments):
-                p = np.array(point_from_beam_segment_intersection(line, item))
-                if np.shape(p) == (3,):
-                    arr = np.vstack([arr, p])
-            arr = arr[1:np.shape(arr)[0]]
-            arr = np.unique(arr, axis=0)
-            idx = np.array([])
-            for i, item in enumerate(arr):
-                if point_comparison(item, point):
-                    idx = np.hstack([idx, i])
-            if np.shape(idx)[0] != 0:
-                idx = idx.astype("int")
-                arr = np.delete(arr, idx, axis=0)
-            var = (np.shape(arr)[0]) % 2
-            if var == 0:
-                return False
-            else:
-                return True
-        else:
-            return False
-
-
-class Polygon:
-    def __init__(self, vertices: np.ndarray) -> None:
-        self.__vertices = vertices
-        self.__barycenter = np.array([])
-        self.__line_segments = []
-        self.set_barycenter()
-        self.line_segments_create()
-
-    @property
-    def barycenter(self):
-        return self.__barycenter
-
-    def get_closed_vartices(self):
-        return np.vstack([self.__vertices, self.__vertices[0]])
-
-    def line_segments_create(self):
-        for i, item in enumerate(self.__vertices):
-            segment = Line_segment()
-            if i == np.shape(self.__vertices)[0] - 1:
-                segment.segment_create_from_points(item, self.__vertices[0])
-
-            else:
-                segment.segment_create_from_points(item, self.__vertices[i + 1])
-            self.__line_segments = np.hstack([self.__line_segments, segment])
-
-    def get_line_segments(self):
-        return self.__line_segments
-
-    def set_barycenter(self):
-        arr = self.__vertices.T
-        xyz_mean = arr.mean(axis=1)
-        self.__barycenter = xyz_mean
-    def show(self, ax) -> None:
-        for segment in self.__line_segments:
-            segment.color = 'green'
-            segment.show(ax)
-
-
-    def point_analyze(self, point: np.ndarray):
-        """
-        Функция принимает точку и проверяет, находится ли точка внутри границ многогранника путем подсчета числа
-        пересечений с границами многогранника.
-        :param point: np.ndarray
-        :return: bool
-        """
-        line = Line()
-        tets_point = np.array(self.__barycenter)
-        if point_comparison(point, self.barycenter):
-            tets_point += 1
-
-        line.line_create_from_points(point, tets_point)
-        arr = np.array([[0, 0, 0]])
-        for i, item in enumerate(self.__line_segments):
-            p = np.array(point_from_beam_segment_intersection(line, item))
-            if np.shape(p) == (3,):
-                arr = np.vstack([arr, p])
-        arr = arr[1:np.shape(arr)[0]]
-        if np.shape(point)[0] == 2:
-            point = np.hstack([point, 0])
-        arr = np.unique(arr, axis=0)
-        idx = np.array([])
-
-        for i, item in enumerate(arr):
-            if point_comparison(item, point):
-                idx = np.hstack([idx, i])
-        if np.shape(idx)[0] != 0:
-            idx = idx.astype("int")
-            arr = np.delete(arr, idx, axis=0)
-        var = (np.shape(arr)[0]) % 2
-        if var == 0:
-            return False
-        else:
-            return True
-    def point_of_intersection(self, point: np.ndarray):
-        """
-               Функция принимает точку и возвращает точки пересечения луча с фигурой
-               :param point: np.ndarray
-               :return: bool
-               """
-        line = Line()
-        tets_point = np.array(self.__barycenter)
-        line.line_create_from_points(point, tets_point)
-        arr = np.array([[0, 0, 0]])
-        for i, item in enumerate(self.__line_segments):
-            p = np.array(point_from_beam_segment_intersection(line, item))
-            if np.shape(p) == (3,):
-                arr = np.vstack([arr, p])
-        arr = arr[1:np.shape(arr)[0]]
-        if np.shape(point)[0] == 2:
-            point = np.hstack([point, 0])
-        arr = np.unique(arr, axis=0)
-        idx = np.array([])
-        for i, item in enumerate(arr):
-            if point_comparison(item, point):
-                idx = np.hstack([idx, i])
-        if np.shape(idx)[0] != 0:
-            idx = idx.astype("int")
-            arr = np.delete(arr, idx, axis=0)
-        return arr
-class Polygon_2D:
-    def __init__(self, vertices: np.ndarray) -> None:
-        self.__vertices = vertices
-        self.__barycenter = np.array([])
-        self.__line_segments = []
-        self.set_barycenter()
-        self.line_segments_create()
-
-    @property
-    def barycenter(self):
-        return self.__barycenter
-
-    def get_closed_vartices(self):
-        return np.vstack([self.__vertices, self.__vertices[0]])
-
-    def line_segments_create(self):
-        for i, item in enumerate(self.__vertices):
-            segment = Line_segment()
-            if i == np.shape(self.__vertices)[0] - 1:
-                segment.segment_create_from_points(item, self.__vertices[0])
-
-            else:
-                segment.segment_create_from_points(item, self.__vertices[i + 1])
-            self.__line_segments = np.hstack([self.__line_segments, segment])
-
-    def get_line_segments(self):
-        return self.__line_segments
-
-    def set_barycenter(self):
-        arr = self.__vertices.T
-        xyz_mean = arr.mean(axis=1)
-        self.__barycenter = xyz_mean
-
-    def point_analyze(self, point: np.ndarray):
-        """
-        Функция принимает точку и проверяет, находится ли точка внутри границ многогранника путем подсчета числа
-        пересечений с границами многогранника.
-        :param point: np.ndarray
-        :return: bool
-        """
-        line = Line()
-        tets_point = np.array(self.__barycenter)
-        if point_comparison(point, self.barycenter):
-            tets_point += 1
-
-        line.line_create_from_points(point, tets_point)
-        arr = np.array([[0, 0, 0]])
-        for i, item in enumerate(self.__line_segments):
-            p = np.array(point_from_beam_segment_intersection(line, item))
-            if np.shape(p) == (3,):
-                arr = np.vstack([arr, p])
-        arr = arr[1:np.shape(arr)[0]]
-        if np.shape(point)[0] == 2:
-            point = np.hstack([point, 0])
-        arr = np.unique(arr, axis=0)
-        idx = np.array([])
-
-        for i, item in enumerate(arr):
-            if point_comparison(item, point):
-                idx = np.hstack([idx, i])
-        if np.shape(idx)[0] != 0:
-            idx = idx.astype("int")
-            arr = np.delete(arr, idx, axis=0)
-        var = (np.shape(arr)[0]) % 2
-        if var == 0:
-            return False
-        else:
-            return True
-    def point_of_intersection(self, point: np.ndarray):
-        """
-               Функция принимает точку и возвращает точки пересечения луча с фигурой
-               :param point: np.ndarray
-               :return: bool
-               """
-        line = Line()
-        tets_point = np.array(self.__barycenter)
-        line.line_create_from_points(point, tets_point)
-        arr = np.array([[0, 0, 0]])
-        for i, item in enumerate(self.__line_segments):
-            p = np.array(point_from_beam_segment_intersection(line, item))
-            if np.shape(p) == (3,):
-                arr = np.vstack([arr, p])
-        arr = arr[1:np.shape(arr)[0]]
-        if np.shape(point)[0] == 2:
-            point = np.hstack([point, 0])
-        arr = np.unique(arr, axis=0)
-        idx = np.array([])
-        for i, item in enumerate(arr):
-            if point_comparison(item, point):
-                idx = np.hstack([idx, i])
-        if np.shape(idx)[0] != 0:
-            idx = idx.astype("int")
-            arr = np.delete(arr, idx, axis=0)
-        return arr
 
