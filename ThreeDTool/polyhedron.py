@@ -1,4 +1,6 @@
-from .threeDTool import *
+import numpy as np
+
+
 class Polyhedron:
     def __init__(self, triangles):
         self.triangles = triangles
@@ -22,18 +24,21 @@ class Polyhedron:
         arr = arr[1:]
         xyz_mean = arr.mean(axis=0)
         self.__barycenter = xyz_mean
+
     def show(self, ax):
         for tr in self.triangles:
             tr.show(ax)
 
-
     @property
     def barycenter(self):
         return self.__barycenter
+
     @barycenter.setter
     def barycenter(self, barycenter):
         self.__barycenter = barycenter
+
     def point_analyze(self, point: np.ndarray):
+        from .threeDTool import Line, point_comparison, beam_triangle_intersection
         line = Line()
         # tets_point = np.array(self.__barycenter)
         test_point = np.array(self.__barycenter)
@@ -58,6 +63,7 @@ class Polyhedron:
             return True
         else:
             return False
+
     def get_min_max(self):
         return np.array([[self.x_min, self.y_min, self.z_min], [self.x_max, self.y_max, self.z_max]])
 
