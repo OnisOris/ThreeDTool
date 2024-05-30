@@ -1,5 +1,4 @@
 import numpy as np
-from loguru import logger
 
 class Sphere:
     """
@@ -18,9 +17,7 @@ class Sphere:
         :param point:
         :return:
         """
-        logger.debug(point)
         eq = (point[0] - self.a) ** 2 + (point[1] - self.b) ** 2 + (point[2] - self.c) ** 2
-        logger.debug(eq)
         if eq < self.r ** 2:
             return True
         else:
