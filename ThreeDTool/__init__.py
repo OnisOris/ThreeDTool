@@ -8,3 +8,6 @@ from .polyhedron import *
 from .surface import *
 from .threeDTool import *
 from .twoDTool import *
+from .triangle import *
+from .polygon import *
+from .points import *
