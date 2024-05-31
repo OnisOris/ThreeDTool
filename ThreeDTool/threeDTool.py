@@ -1,6 +1,7 @@
 from typing import Tuple, Any
 from numpy import ndarray, dtype
 
+from . import Triangle
 from .plane import Plane
 from .line import Line, Line_segment
 import numpy as np
@@ -303,7 +304,7 @@ def position_analyze_of_triangle(triangle: list | np.ndarray, plane: Plane) -> (
                 logger.error("Такого случая не должно быть")
 
 
-def point_in_plane(plane, point):
+def point_in_plane(plane: Plane, point: list | np.ndarray) -> float:
     """
     Функция проверяет факт принадлежности точки плоскости
     :param plane: Объект плоскости
@@ -335,7 +336,15 @@ def distance_between_two_points(point1: float | int, point2: float | int) -> flo
         return float(abs(array[0]) - abs(array[1]))
 
 
-def vector_from_two_points(point1, point2):
+def vector_from_two_points(point1, point2) -> np.ndarray:
+    """
+    Данная функция создает вектор из двух точек
+    :param point1: Первая точка типа [x, y, z] или [x, y]
+    :type point1: list or np.ndarray
+    :param point2: Первая точка типа [x, y, z] или [x, y]
+    :type point2: list or np.ndarray
+    :return: np.ndarray
+    """
     if np.shape(point1)[0] == 3:
         vector = np.array([point2[0] - point1[0], point2[1] - point1[1], point2[2] - point1[2]])
     else:
@@ -343,7 +352,17 @@ def vector_from_two_points(point1, point2):
     return vector
 
 
-def normal_of_triangle(vertex1, vertex2, vertex3):
+def normal_of_triangle(vertex1, vertex2, vertex3) -> np.ndarray:
+    """
+    Функция генерирует вектор нормали треугольника по правиле правого винта
+    :param vertex1: Первая вершина треугольника
+    :type vertex1: list or np.ndarray
+    :param vertex2: Вторая вершина треугольника
+    :type vertex2: list or np.ndarray
+    :param vertex3: Третья вершина треугольника
+    :type vertex3: list or np.ndarray
+    :return: np.ndarray
+    """
     vertex1 = np.array(vertex1)
     vertex2 = np.array(vertex2)
     vertex3 = np.array(vertex3)
@@ -357,21 +376,12 @@ def normal_of_triangle(vertex1, vertex2, vertex3):
     return normal
 
 
-def lsftp(triangle, plane):
-    """
-     Line segment from triangle and plane или сокращенно lsftp
-    :param triangle:
-    :param plane:
-    :return:
-    """
-    index_of_position = position_analyze_of_triangle(triangle, plane)
-
-
-def null_vector(vector):
+def null_vector(vector) -> bool:
     """
     Функция проверяет является ли вектор нулевым
-    :param vector:
-    :return:
+    :param vector: Вектор типа [x, y, z] или [x, y]
+    :type vector: list or np.ndarray
+    :return: bool
     """
     if np.sum(vector) == 0:
         return True
@@ -382,9 +392,11 @@ def null_vector(vector):
 def point_comparison(point1, point2):
     """
     Функция проверяет равенство двух точек. В случае равенства возвращает True, иначе False
-    :param point1:
-    :param point2:
-      :return: bool
+    :param point1: Первая точка типа [x, y, z]
+    :type point1: list or np.ndarray
+    :param point2: Вторая точка типа [x, y, z]
+    :type point2: list or np.ndarray
+    :return: bool
     """
     n = 7
     point1 = np.round(point1, n)
@@ -400,7 +412,15 @@ def point_comparison(point1, point2):
         return False
 
 
-def line_triangle_intersection(line: Line, triangle):
+def line_triangle_intersection(line: Line, triangle: Triangle) -> bool | np.ndarray:
+    """
+    Функция возвращает точку пересечения линии и треугольника
+    :param line: Исследуемая линия
+    :type line: Line
+    :param triangle: Исследуемый треугольник
+    :type triangle: Triangle
+    :return: bool or np.ndarray
+    """
     point = point_from_plane_line_intersection(line, triangle)
     if point is not None:
         if triangle.point_analyze(point):
