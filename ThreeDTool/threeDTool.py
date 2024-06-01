@@ -1,6 +1,6 @@
 from typing import Tuple, Any
 from numpy import ndarray, dtype
-
+import matplotlib
 from . import Triangle
 from .plane import Plane
 from .line import Line, Line_segment
@@ -8,7 +8,8 @@ import numpy as np
 from loguru import logger
 from .twoDTool import *
 from typing import Optional
-from .curve import Curve
+from .curve import Curve, Curve5x
+from .polygon import Polygon
 
 log = False
 
@@ -431,7 +432,15 @@ def line_triangle_intersection(line: Line, triangle: Triangle) -> bool | np.ndar
         return False
 
 
-def beam_triangle_intersection(beam: Line, triangle):
+def beam_triangle_intersection(beam: Line, triangle: Triangle) -> np.ndarray | None:
+    """
+    Данная функция находит пересечение луча и треугольника. Луч представлен объектом класса Line, так как в
+    каноническом уравнении линии есть все для его описания (точка прохождение и направление)
+    :param beam: Объект класса линии, представляющий собой луч в данной интерпретации
+    :type beam: Line
+    :param triangle: Объект класса треугольника
+    :type triangle: Triangle
+    """
     point = line_triangle_intersection(beam, triangle)
     if point is not None and point is not False:
         beam_abc = beam.coeffs()[0:3]
@@ -446,7 +455,25 @@ def beam_triangle_intersection(beam: Line, triangle):
         return None
 
 
-def loxodrome(angle=0, R=70, count_of_rot=17, step=0.0025, point_n=np.array([0, 0, 0])):
+def loxodrome(angle: float = 0,
+              R: float = 70,
+              count_of_rot: float = 17,
+              step: float = 0.0025,
+              point_n: ndarray = np.array([0, 0, 0])):
+    """
+    Функция генерирует локсодрому
+    :param angle: Вертикальный угол
+    :type angle: float
+    :param R: Радиус локсодромы
+    :type R: float
+    :param count_of_rot: Число витков
+    :type count_of_rot: int
+    :param step: Количество шагов точность
+    :type step: float
+    :param point_n: Центральная точка локсодромы формата [x, y, z]
+    :type point_n: np.ndarray or list
+    :return: np.ndarray
+    """
     v_angle_unit = np.pi / R / 2
     h_angle_unit = np.pi / R * count_of_rot * step
     xr = angle / 180 * np.pi
@@ -469,13 +496,34 @@ def loxodrome(angle=0, R=70, count_of_rot=17, step=0.0025, point_n=np.array([0, 
     return arr + point_n
 
 
-def generate_loxodromes(r=10, r_c=0, layer_height=0.2, point_n=np.array([0, 0, 0]), steps=0.0025):
+def generate_loxodromes(r: float = 10.0,
+                        r_c: float = 0,
+                        layer_height: float = 0.2,
+                        point_n: ndarray = np.array([0, 0, 0]),
+                        steps: float = 0.0025) -> ndarray[Any, dtype[Any]]:
+    """
+    Функция создает вложенные друг в друга локсодромы
+    :param r: Внешний радиус
+    :type r: float
+    :param r_c: Внутренний радиус
+    :type r_c: float
+    :param layer_height: Высота слоев или расстояние между локсодромами
+    :type layer_height: float
+    :param point_n: Центральная точка локсодром
+    :type point_n: float
+    :param steps: Точность
+    :type steps: float
+    :return: np.ndarray[Curve]
+    """
     count_of_layer = r / layer_height - r_c / layer_height
     step = (r - r_c) / count_of_layer
     curves = np.array([])
     for i in range(int(count_of_layer)):
-        curves = np.hstack([curves, Curve(loxodrome(R=r - i * step, angle=90, count_of_rot=17,
-                                                    step=steps, point_n=point_n))])
+        curves = np.hstack([curves, Curve(loxodrome(R=r - i * step,
+                                                    angle=90,
+                                                    count_of_rot=17,
+                                                    step=steps,
+                                                    point_n=point_n))])
     return curves
 
 
@@ -484,7 +532,15 @@ def matrix_dot_all(self, array_matrix):
     return T0_2
 
 
-def matrix_create(cja, DH):
+def matrix_create(cja: list or ndarray, DH: dict):
+    """
+    Функция создает матрицы преобразования координат на основе DH параметров
+    :param cja: Углы поворота типа [angle_1, ....., angle_n]
+    :type cja: list or ndarray
+    :param DH: Словарь с DH параметрами
+    :type DH: dict
+    :return: ndarray
+    """
     from numpy import (sin, cos)
     T = np.eye(4, 4)
     for i, item in enumerate(cja):
@@ -501,7 +557,15 @@ def matrix_create(cja, DH):
     return np.array(T)
 
 
-def show_ijk(ax, matrix: ndarray[4, 4]):
+def show_ijk(ax, matrix: ndarray) -> None:
+    """
+    Функция строит вектора i, j, k в глобальной системе координат на основе матрицы преобразования
+    :param ax: Объект Axes из matplotlib
+    :type ax: matplotlib.axes.Axes
+    :param matrix: Матрица преобразования 4x4
+    :type matrix: ndarray
+    :return: None
+    """
     ijk = np.array([[1, 0, 0, 0],
                     [0, 1, 0, 0],
                     [0, 0, 1, 0],
@@ -516,13 +580,26 @@ def show_ijk(ax, matrix: ndarray[4, 4]):
         ax.quiver(n[0], n[1], n[2], vector[0], vector[1], vector[2], color=colors[i])
 
 
-def angles_from_vector(curve):
+def angles_from_vector(curve: Curve5x):
+    """
+    Функция вычисляет углы поворота для поворотного стола на основе пятиосевой траектории
+    :param curve: Объект, хранящий пятиосевую траекторию
+    :type curve: Curve5x
+    :return: float, float
+    """
     alpha = np.arctan2(curve[7], curve[6])
     beta = np.arctan2(curve[4], curve[5])
     return alpha, beta
 
 
-def trajectory_generate(h=10, line_width=1, point_n=np.array([0, 0, 0])):
+def trajectory_generate(h: float = 10, line_width: float = 1):
+    """
+    Функция создает квадратную спираль
+    :param h: Высота
+    :type h: float
+    :param line_width: Ширина линии
+    :type line_width: float
+    """
     v = np.array([])
     count = range(int(h / line_width))
     for i in count:
@@ -532,11 +609,16 @@ def trajectory_generate(h=10, line_width=1, point_n=np.array([0, 0, 0])):
             v = np.hstack([v, -j, j])
     x = v[2:-1]
     y = v[3:]
-
     return np.vstack([x, y, np.zeros(np.shape(x)[0])])
 
 
-def line_segments_array_create_from_points(points):
+def line_segments_array_create_from_points(points) -> ndarray:
+    """
+    Функция создает массив отрезков из массива точек
+    :param points: Массив из точек
+    :type points: ndarray
+    :return: ndarray[Line_segment]
+    """
     arr = np.array([])
     for i, point in enumerate(points):
         if i == np.shape(points)[0] - 1:
@@ -546,7 +628,15 @@ def line_segments_array_create_from_points(points):
     return arr
 
 
-def trajectories_intersection_create(polygon, trajectories):
+def trajectories_intersection_create(polygon: Polygon, trajectories: np.ndarray[Line_segment]) -> np.ndarray[Line_segment]:
+    """
+    Создание отрезков на пересечении траектории с многоугольником
+    :param polygon: Многоугольник
+    :type polygon: Polygon
+    :param trajectories:
+    :type trajectories: ndarray[Line_segment]
+    :return: ndarray[Line_segment]
+    """
     segments = np.array([])
     for i, item in enumerate(trajectories):
         p1 = np.array([])
@@ -566,9 +656,16 @@ def trajectories_intersection_create(polygon, trajectories):
     return segments
 
 
-def cut_curve(points: ndarray, path):
+def cut_curve(points: ndarray, path: str = './file.stl') -> ndarray:
+    """
+    Функция фильтрует точки вне STL модели
+    :param points: массив с точками
+    :type points: ndarray
+    :param path: путь до STL файла
+    :type path: str
+    :return: ndarray
+    """
     import trimesh
-    from .curve import Curve5xs, Curve5x, Curve
     your_mesh = trimesh.load_mesh(path)
     arr = np.array([])
     var_mem = False
