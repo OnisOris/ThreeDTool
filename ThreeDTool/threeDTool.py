@@ -1,7 +1,7 @@
 from typing import Tuple, Any
 from numpy import ndarray, dtype
 import matplotlib
-from . import Triangle
+from .triangle import Triangle
 from .plane import Plane
 from .line import Line, Line_segment
 import numpy as np
