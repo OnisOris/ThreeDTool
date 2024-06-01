@@ -1,5 +1,9 @@
 # ThreeDTool
-Данный модуль нужен для работы с математическими структурами, такими, как плоскость, линия, 
-треугольники и другими многоугольниками, многогранниками.
 
-Пример использования библиотеки находится по ссылке https://github.com/OnisOris/5X3D-slicer
+
+This module is needed to work with mathematical structures such as plane, line, 
+triangles and other polygons, polyhedron.
+
+An example of using the library is here:
+
+https://github.com/OnisOris/5X3D-slicer

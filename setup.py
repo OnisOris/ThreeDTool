@@ -19,7 +19,7 @@ setup(
     install_requires=['numpy', 'matplotlib', 'trimesh', 'loguru', 'PyQt5'],
     classifiers=[
         'Programming Language :: Python :: 3.12',
-        'License :: OSI Approved :: GPL-2.0',
+        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         'Operating System :: OS Independent'
     ],
     keywords='3D math geometry',
