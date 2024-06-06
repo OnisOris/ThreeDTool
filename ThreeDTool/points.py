@@ -1,6 +1,4 @@
 import numpy as np
-
-
 class Points:
     """
     Класс, хранящий в себе точки вида [x, y, z]
