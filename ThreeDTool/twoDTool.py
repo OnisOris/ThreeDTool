@@ -1,6 +1,7 @@
+from __future__ import annotations
 import numpy as np
 from math import acos
-from .line import Line
+# from .line import Line
 
 def angle_from_vectors_2d(v1: list | np.ndarray, v2: list | np.ndarray) -> np.ndarray:
     """

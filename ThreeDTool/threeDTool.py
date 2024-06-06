@@ -1,15 +1,11 @@
+from __future__ import annotations
 from typing import Tuple, Any
 from numpy import ndarray, dtype
 import matplotlib
-from .triangle import Triangle
-from .plane import Plane
 from .line import Line, Line_segment
 import numpy as np
 from loguru import logger
-from .twoDTool import *
 from typing import Optional
-from .curve import Curve, Curve5x
-from .polygon import Polygon
 
 log = False
 
@@ -515,6 +511,7 @@ def generate_loxodromes(r: float = 10.0,
     :type steps: float
     :return: np.ndarray[Curve]
     """
+    from .curve import Curve
     count_of_layer = r / layer_height - r_c / layer_height
     step = (r - r_c) / count_of_layer
     curves = np.array([])
@@ -666,6 +663,7 @@ def cut_curve(points: ndarray, path: str = './file.stl') -> ndarray:
     :return: ndarray
     """
     import trimesh
+    from curve import Curve
     your_mesh = trimesh.load_mesh(path)
     arr = np.array([])
     var_mem = False
