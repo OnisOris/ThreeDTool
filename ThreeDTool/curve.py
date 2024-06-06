@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib
-from trimesh.path.entities import Curve
 
 
 class Curve:
