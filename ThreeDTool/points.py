@@ -1,11 +1,10 @@
 import numpy as np
-
-
 class Points:
     """
     Класс, хранящий в себе точки вида [x, y, z]
     """
     def __init__(self, xyz: np.ndarray,
+                 signs: list[str] | np.ndarray[list] = None,
                  color: str = 'green',
                  s: int = 1,
                  marker: str = 'o',
@@ -24,6 +23,10 @@ class Points:
         :param text: True - подписать точки
         :type text: bool
         """
+        self.signs = signs
+        if signs is not None:
+            if np.shape(signs)[0] != np.shape(xyz)[0]:
+                raise Exception("Size 0 axis of signs and xyz must be the same")
         self.text = text
         self.method = method
         self.xyz = np.array(xyz)
@@ -43,5 +46,12 @@ class Points:
         elif self.method == 'scatter':
             ax.scatter(self.xyz.T[0], self.xyz.T[1], self.xyz.T[2], color=self.color, s=self.s, marker=self.marker)
         if self.text:
-            for point in self.xyz:
-                ax.text(point[0], point[1], point[2], f"center point: \n {point[0], point[1], point[2]}", color='blue')
+            if self.signs != None:
+                for i, point in enumerate(self.xyz):
+                    ax.text(point[0], point[1], point[2],
+                            f"{sign[i]}\n{point[0], point[1], point[2]}", color='blue')
+            else:
+                for i, point in enumerate(self.xyz):
+                    ax.text(point[0], point[1], point[2],
+                            f"{point[0], point[1], point[2]}", color='blue')
+
