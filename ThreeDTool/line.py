@@ -2,7 +2,7 @@ from math import sqrt
 from loguru import logger
 import numpy as np
 from numpy import ndarray
-from plane import Plane
+from .plane import Plane
 
 
 class Line:
