@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .twoDTool import *
-
 
 def full_vstack(vector: list | np.ndarray) -> np.ndarray:
     """
