@@ -1,7 +1,6 @@
 from __future__ import annotations
 import numpy as np
 from math import acos
-# from .line import Line
 
 def angle_from_vectors_2d(v1: list | np.ndarray, v2: list | np.ndarray) -> np.ndarray:
     """
@@ -55,7 +54,7 @@ def vector_rotation(vector, angle, grad=False) -> np.ndarray:
     new_vector = np.round(matrix_rotation.dot(vector), 6)
     return new_vector
 
-def perpendicular_line(line: Line, left: bool = False) -> np.ndarray:
+def perpendicular_line(line: Line, left: bool = False) -> Line:
     """
     Функция возвращает линию перпендикулярную данной в 2D пространстве
     :param line: Объект линии
@@ -63,6 +62,7 @@ def perpendicular_line(line: Line, left: bool = False) -> np.ndarray:
     :param left: Перпендикулярная линия вправо или влево
     :return: np.ndarray
     """
+    from .line import Line
     vector = line.coeffs()[3:5]
     if left:
         angle = -90
