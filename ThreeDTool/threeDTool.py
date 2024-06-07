@@ -663,7 +663,7 @@ def cut_curve(points: ndarray, path: str = './file.stl') -> ndarray:
     :return: ndarray
     """
     import trimesh
-    from curve import Curve
+    from .curve import Curve
     your_mesh = trimesh.load_mesh(path)
     arr = np.array([])
     var_mem = False
