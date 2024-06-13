@@ -380,7 +380,7 @@ def null_vector(vector) -> bool:
     :type vector: list or np.ndarray
     :return: bool
     """
-    if np.sum(vector) == 0:
+    if np.linalg.norm(vector) == 0:
         return True
     else:
         return False
@@ -677,3 +677,17 @@ def cut_curve(points: ndarray, path: str = './file.stl') -> ndarray:
             arr = np.hstack([arr, new_curve])
         var_mem = var
     return arr
+
+def angle_from_vectors(vector1: ndarray, vector2: ndarray) -> ndarray:
+    """
+    Функция возвращает угол между двумя векторами в радианах, заданными в n_мерном пространстве
+    :param vector1: Первый n-мерный вектор-строка
+    :type vector1: ndarray
+    :param vector2: Второй n-мерный вектор-строка
+    :type vector2: ndarray
+    :return: ndarray
+    """
+    if null_vector(vector1) or null_vector(vector2):
+        raise Exception("Вектора не не могут быть равны нулю")
+    cos = np.dot(vector1, vector2) / (np.linalg.norm(vector1) * np.linalg.norm(vector2))
+    return np.arccos(cos)
