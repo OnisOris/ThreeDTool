@@ -17,7 +17,10 @@ class Polygon:
         :param vertices: Вершины типа [[x1, y1, z1], ......., [xn, yn, zn]]
         :type vertices: np.ndarray
         """
-        self.__vertices = vertices
+        if isinstance(vertices, np.ndarray):
+            self.__vertices = vertices
+        else:
+            self.__vertices = np.array(vertices)
         self.__barycenter = np.array([])
         self.__line_segments = np.array([])
         self.set_barycenter()
