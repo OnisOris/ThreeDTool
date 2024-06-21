@@ -3,7 +3,6 @@ from math import sqrt
 from loguru import logger
 import numpy as np
 from numpy import ndarray
-# from .plane import Plane
 
 
 class Line:
@@ -258,6 +257,33 @@ class Line:
         z = points.T[2]
         ax.plot(x, y, z)
 
+    def line_create_from_point_vector(self, point: list | ndarray, vector: list | ndarray) -> None:
+        """
+        Функция создает линию по точке и вектору
+        :param point: точка, через которую проходит вектор
+        :type point: list | ndarray
+        :param vector: вектор, задающий направление линии
+        :type vector: list | ndarray
+        :return: None
+        """
+        self.p1 = vector[0]
+        self.p2 = vector[1]
+        self.p3 = vector[2]
+        self.a = point[0]
+        self.b = point[1]
+        self.c = point[2]
+
+    def offset_point(self, distance: float | int) -> ndarray:
+        """
+        Данная функция возвращает точку, которая отступается от центра линии [a, b, c] на расстояние distance
+        :param distance: дистанция отступа
+        :type distance: float | int
+        :return: ndarray
+        """
+        from ThreeDTool import normalization
+        vector_plus = normalization(self.coeffs()[3:6], distance)
+        return_point = self.coeffs()[0:3] + vector_plus
+        return return_point
 
 
 class Line_segment(Line):
@@ -281,7 +307,6 @@ class Line_segment(Line):
         self.border_y.sort()
         self.border_z.sort()
         self.lenth = np.linalg.norm(self.point1 - self.point2)
-
 
     def info(self) -> None:
         """
@@ -393,6 +418,7 @@ class Line_segment(Line):
         :return: ndarray[ndarray[float]]
         """
         return np.vstack([self.point1, self.point2])
+
     def show(self, ax):
         """
         Функция отображает отрезок
@@ -402,3 +428,23 @@ class Line_segment(Line):
         """
         vT = self.get_points().T
         ax.plot(vT[0], vT[1], vT[2], color=self.color, linewidth=self.linewidth)
+
+    def line_segment_create_from_point_vector_lenght(self, point: list | ndarray,
+                                                     vector: list | ndarray,
+                                                     lenght: float | int) -> None:
+        """
+        Данная функция создает отрезок из поданной точки point в направлении вектора vector и длиной lenght
+        :param point: точка, из которой выходит отрезок
+        :type point: list | ndarray
+        :param vector: вектор, в направлении которого строится отрезок
+        :type vector: list | ndarray
+        :param lenght: длина отрезка
+        :return: None
+        """
+        from .threeDTool import normalization
+        # Обертка точки и вектора для дальнейшего векторного сложения
+        point = np.array(point)
+        vector = np.array(vector)
+        vector_plus = normalization(vector, lenght)
+        end_point = point + vector_plus
+        self.segment_create_from_points(point, end_point)
