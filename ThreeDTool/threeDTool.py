@@ -6,6 +6,7 @@ from .line import Line, Line_segment
 import numpy as np
 from loguru import logger
 from typing import Optional
+from .plane import Plane
 
 log = False
 
@@ -625,7 +626,8 @@ def line_segments_array_create_from_points(points) -> ndarray:
     return arr
 
 
-def trajectories_intersection_create(polygon: Polygon, trajectories: np.ndarray[Line_segment]) -> np.ndarray[Line_segment]:
+def trajectories_intersection_create(polygon: Polygon, trajectories: np.ndarray[Line_segment]) -> np.ndarray[
+    Line_segment]:
     """
     Создание отрезков на пересечении траектории с многоугольником
     :param polygon: Многоугольник
@@ -678,6 +680,7 @@ def cut_curve(points: ndarray, path: str = './file.stl') -> ndarray:
         var_mem = var
     return arr
 
+
 def angle_from_vectors(vector1: ndarray, vector2: ndarray) -> ndarray:
     """
     Функция возвращает угол между двумя векторами в радианах, заданными в n_мерном пространстве
@@ -691,3 +694,181 @@ def angle_from_vectors(vector1: ndarray, vector2: ndarray) -> ndarray:
         raise Exception("Вектора не не могут быть равны нулю")
     cos = np.dot(vector1, vector2) / (np.linalg.norm(vector1) * np.linalg.norm(vector2))
     return np.arccos(cos)
+
+
+def normalization(vector: list | ndarray, length: int | float = 1) -> ndarray:
+    """
+    Функция возвращает нормированный вектор заданной длины
+    :param vector: Вектор
+    :type vector: list | ndarray
+    :param length: Длина вектора
+    :type length: int
+    """
+    return np.array(vector) / np.linalg.norm(vector) * length
+
+
+def rot_v(vector: list | np.ndarray, angle: float | int, axis: list | np.ndarray) -> np.ndarray:
+    """
+    Функция вращает входные вектора вокруг произвольной оси, заданной векторами-столбцами. Положительным вращением
+    считается по часовой стрелке при направлении оси к нам.
+    :param axis: Вектор произвольной оси, вокруг которой происходит вращение
+    :type axis: list | np.ndarray
+    :param vector: Вращаемые вектор-строки, упакованные в матрицу nx3
+    :type vector: list | np.ndarray
+    :param angle: Угол вращения в радианах
+    :type angle: float | int
+    :return: np.ndarray
+    """
+    from numpy import cos, sin
+    axis = normalization(axis, 1)
+    x, y, z = axis
+    c = cos(angle)
+    s = sin(angle)
+    t = 1 - c
+    rotate = np.array([
+        [t * x ** 2 + c, t * x * y - s * z, t * x * z + s * y],
+        [t * x * y + s * z, t * y ** 2 + c, t * y * z - s * x],
+        [t * x * z - s * y, t * y * z + s * x, t * z ** 2 + c]
+    ])
+    rot_vector = np.dot(vector, rotate)
+    return rot_vector
+
+
+def rotation_full_vector_relative_point_axis(
+        full_vector: ndarray | list,
+        angle: float | int,
+        rot_point: np.ndarray = np.array([0, 0, 0]),
+        axis: list | np.ndarray = np.array([0, 0, 1])) -> ndarray:
+    """
+    Функция принимает в себя полный вектор, содержащий координату его начала и ориентацию в виде вектора. Выглядит
+    он следующим образом: full_vector = [[x, y, z],
+                                         [v_x, v_y, v_z]]
+    :param full_vector: full_vector = [[x, y, z], [v_x, v_y, v_z]]
+    :type full_vector: list | ndarray
+    :param angle: угол поворота в радианах. Положительное направление - по часовой стрелке, если axis смотрит на нас
+    :type angle: float | int
+    :param rot_point: точка начала оси axis
+    :type rot_point: list | ndarray
+    :param axis: вектор направления оси
+    :type axis: list | ndarray
+    :return: ndarray
+    """
+    full_vector = np.array(full_vector)
+    axis = np.array(axis)
+    v_orientation = rot_v(vector=full_vector[1], angle=angle, axis=axis)
+    v_point = rot_v(vector=full_vector[0] - rot_point, angle=angle, axis=axis) + rot_point
+    new_full_vector = np.vstack([v_point, v_orientation])
+    return new_full_vector
+
+
+def line_create_from_point_vector(point: list | ndarray, vector: list | ndarray) -> Line:
+    """
+    Функция создает линию из точки, через которую проходит линия, и из вектора, который указывает направление линии
+    :param point: точка, через которую проходит линия
+    :type point: list | ndarray
+    :param vector: вектор, указывающий направление
+    :type vector: list | ndarray
+    :return: Line
+    """
+    return Line(point[0], point[1], point[2], vector[0], vector[1], vector[2])
+
+
+def line_segment_create_from_point_vector_lenght(point: list | ndarray,
+                                                 vector: list | ndarray,
+                                                 lenght: float | int) -> Line_segment:
+    """
+    Данная функция создает отрезок из поданной точки point в направлении вектора vector и длиной lenght
+    :param point: точка начала создания отрезка
+    :type point: list | ndarray
+    :param vector: Вектор направления создания отрезка
+    :type vector: list | ndarray
+    :param lenght: Длина отрезка
+    :type lenght: float | int
+    :return Line_segment
+    """
+    # Обертка точки и вектора для дальнейшего векторного сложения
+    point = np.array(point)
+    vector = np.array(vector)
+    vector_plus = normalization(vector, lenght)
+    end_point = point + vector_plus
+    segment = Line_segment()
+    segment.segment_create_from_points(point, end_point)
+    return segment
+
+
+def perpendicular_line(line: Line, point: ndarray | list) -> Line:
+    """
+    Функция возвращает линию перпендикулярную данной из точки point
+    :param line: Объект линии
+    :type line: Line
+    :param point: точка, из которой проводится перпендикуляр
+    :type point: ndarray
+    :return: np.ndarray
+    """
+    # Создание плоскости вращения
+    point = np.array(point)
+    plane = Plane()
+    plane.create_plane_from_triangle(np.array([point, line.coeffs()[0:3], line.offset_point(1)]), create_normal=True)
+    rot_vector = plane.get_N()
+    full_vector = np.array([point,
+                            line.coeffs()[3:6]])
+    perp_full_vector = rotation_full_vector_relative_point_axis(full_vector=full_vector,
+                                                                angle=np.pi / 2,
+                                                                rot_point=full_vector[0],
+                                                                axis=rot_vector)
+    perp_line = Line(*perp_full_vector[0], *perp_full_vector[1])
+    return perp_line
+
+
+def perpendicular_segment(line: Line | Line_segment, point: ndarray | list) -> Line_segment:
+    """
+    Функция возвращает линию перпендикулярную данной из точки point
+    :param line: Объект линии
+    :type line: Line | Line_segment
+    :param point: точка, из которой проводится перпендикуляр
+    :type point: ndarray | list
+    :return: np.ndarray
+    """
+    second_point = point_from_projection(line, point)
+    return Line_segment(point1=point, point2=second_point)
+
+
+def point_from_projection(line: Line, point: ndarray | list) -> ndarray:
+    """
+    Функция проводит перпендикуляр из точки в линию и возвращает точку пересечения перпендикуляра
+    :param line: линия, в которую проводится перпендикуляр
+    :type line: Line
+    :param point: точка, из которой проводится перпендикуляр
+    :type point: ndarray
+    :return: ndarray
+    """
+    perp_line = perpendicular_line(line, point)
+    return point_from_line_line_intersection(line, perp_line)
+
+
+def rectangle_from_three_points(point1: list | ndarray, point2: list | ndarray, point3: list | ndarray) -> Polygon:
+    """
+    Функция создает прямоугольник по трем точкам.
+    Треугольник A (point1), B (point2), C (point3). CH - высота, а также A1 и B1 - вершины прямоугольника,
+    которые находятся напротив вершин A и B.
+    :param point1: Первая тока
+    :type point1: list | ndarray
+    :param point2: Вторая точка
+    :type point2: list | ndarray
+    :param point3: Точка, задающая длину прямоугольника
+    :type point3: list | ndarray
+    :return: Polygon
+    """
+
+    from .polygon import Polygon
+    BA = vector_from_two_points(point2, point1)
+    BA_line = Line(*point2, *BA)
+    H = point_from_projection(BA_line, point3)
+    CH = vector_from_two_points(H, point3)
+    B1_A1_line = Line(*point3, *BA)
+    B_B1_line = Line(*point2, *CH)
+    A_A1_line = Line(*point1, *CH)
+    A1 = point_from_line_line_intersection(A_A1_line, B1_A1_line)
+    B1 = point_from_line_line_intersection(B_B1_line, B1_A1_line)
+    vertices = np.array([point1, point2, B1, A1])
+    return Polygon(vertices)
