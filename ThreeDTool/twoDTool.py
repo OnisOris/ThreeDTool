@@ -53,21 +53,3 @@ def vector_rotation(vector, angle, grad=False) -> np.ndarray:
     matrix_rotation = np.array([[np.cos(angle), np.sin(angle)], [-np.sin(angle), np.cos(angle)]])
     new_vector = np.round(matrix_rotation.dot(vector), 6)
     return new_vector
-
-def perpendicular_line(line: Line, left: bool = False) -> Line:
-    """
-    Функция возвращает линию перпендикулярную данной в 2D пространстве
-    :param line: Объект линии
-    :type line: Line
-    :param left: Перпендикулярная линия вправо или влево
-    :return: np.ndarray
-    """
-    from .line import Line
-    vector = line.coeffs()[3:5]
-    if left:
-        angle = -90
-    else:
-        angle = 90
-    new_vector = vector_rotation(vector, angle, grad=True)
-    new_line = Line(line.a, line.b, line.c, new_vector[0], new_vector[1], 0)
-    return new_line
