@@ -148,6 +148,7 @@ class Polygon_2D:
     """
     Класс многоугольника в 2D пространстве
     """
+
     def __init__(self, vertices: np.ndarray):
         """
         :param vertices: Вершины типа [[x1, y1], ......., [xn, yn]]
