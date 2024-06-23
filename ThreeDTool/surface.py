@@ -24,7 +24,7 @@ class Sphere:
         self.b = b
         self.c = c
 
-    def point_analyze(self, point: np.ndarray | list):
+    def point_analyze(self, point: np.ndarray | list) -> bool:
         """
         Функция анализирует, находится ли входная точка внутри сферы
         :param point: Точка типа [x, y, z]
@@ -33,6 +33,20 @@ class Sphere:
         """
         eq = (point[0] - self.a) ** 2 + (point[1] - self.b) ** 2 + (point[2] - self.c) ** 2
         if eq < self.r ** 2:
+            return True
+        else:
+            return False
+
+    def point_analyze_not_eq(self, point: np.ndarray | list) -> bool:
+        """
+        Функция анализирует, находится ли входная точка внутри сферы включительно границы
+        :param point: Точка типа [x, y, z]
+        :type point: np.ndarray | list
+        :return: bool
+        """
+        eq = (point[0] - self.a) ** 2 + (point[1] - self.b) ** 2 + (point[2] - self.c) ** 2
+        r = self.r ** 2
+        if eq <= self.r ** 2:
             return True
         else:
             return False
