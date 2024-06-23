@@ -1,4 +1,4 @@
-from ThreeDTool import Sphere
+from ..surface import Sphere
 import random
 import numpy as np
 
