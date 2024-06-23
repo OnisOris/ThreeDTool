@@ -10,6 +10,32 @@ from .polygon import Polygon
 from .curve import Curve5x
 log = False
 
+def equal_lines(line1: Line, line2: Line) -> bool:
+    """
+    Функция определяет равенство линий
+    :param line1: Первая линия
+    :type line1: Line
+    :param line2: Вторая линия
+    :type line2: Line
+    :return: bool
+    """
+    if line1.point_belongs_to_the_line(line2.coeffs()[0:3]) and coplanar_vectors(line1.coeffs()[3:6], line2.coeffs()[3:6]):
+        return True
+    else:
+        return False
+def coplanar_vectors(vector1, vector2) -> bool:
+    """
+    Функция проверяет компланарность векторов
+    :param vector1: Первый вектор
+    :type vector1: list | np.ndarray
+    :param vector2: Второй вектор
+    :type vector2: Line
+    :return: bool
+    """
+    if np.round(np.linalg.norm(np.cross(vector1, vector2)), 5) == 0:
+        return True
+    else:
+        return False
 
 def check_position_lines(line1: Line, line2: Line) -> int:
     """
@@ -21,9 +47,7 @@ def check_position_lines(line1: Line, line2: Line) -> int:
     не параллельны 3, если линии совпадают
     """
     cross = np.round(np.linalg.norm(np.cross(line1.coeffs()[3:6], line2.coeffs()[3:6])), 6)
-    if ((np.array_equal(line1.coeffs()[0:3], line2.coeffs()[0:3]) and
-         np.linalg.matrix_rank(np.array([line1.coeffs()[3:6], line2.coeffs()[3:6], line2.coeffs()[3:6]])) == 2)
-            and cross == 0):
+    if equal_lines(line1, line2):
         return 3
     else:
         line3 = Line()
