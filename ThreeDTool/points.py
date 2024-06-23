@@ -46,10 +46,10 @@ class Points:
         elif self.method == 'scatter':
             ax.scatter(self.xyz.T[0], self.xyz.T[1], self.xyz.T[2], color=self.color, s=self.s, marker=self.marker)
         if self.text:
-            if self.signs != None:
+            if self.signs is not None:
                 for i, point in enumerate(self.xyz):
                     ax.text(point[0], point[1], point[2],
-                            f"{sign[i]}\n{point[0], point[1], point[2]}", color='blue')
+                            f"{self.signs[i]}\n{point[0], point[1], point[2]}", color='blue')
             else:
                 for i, point in enumerate(self.xyz):
                     ax.text(point[0], point[1], point[2],
