@@ -344,8 +344,6 @@ class Line_segment(Line):
             p3 = point2[2] - point1[2]
         self._a = point1[0]
         self._b = point1[1]
-
-        # TODO: проверка на нуль
         p1 = point2[0] - point1[0]
         p2 = point2[1] - point1[1]
 
