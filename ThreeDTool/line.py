@@ -281,7 +281,7 @@ class Line:
         :type distance: float | int
         :return: ndarray
         """
-        from ThreeDTool import normalization
+        from .threeDTool import normalization
         vector_plus = normalization(self.coeffs()[3:6], distance)
         return_point = self.coeffs()[0:3] + vector_plus
         return return_point
