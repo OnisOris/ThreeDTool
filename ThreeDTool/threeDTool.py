@@ -1,13 +1,13 @@
-from __future__ import annotations
 from typing import Tuple, Any
 from numpy import ndarray, dtype
-import matplotlib
 from .line import Line, Line_segment
 import numpy as np
 from loguru import logger
 from typing import Optional
 from .plane import Plane
-
+from .triangle import Triangle
+from .polygon import Polygon
+from .curve import Curve5x
 log = False
 
 
@@ -218,16 +218,16 @@ def position_analyzer_of_point_and_plane(point: list or np.ndarray, plane: Plane
 
 
 def position_analyzer_of_line_and_plane(line: Line, plane: Plane):
-    '''
+    """
     Функция анализирует положение линии относительно плоскости. Линия может быть: параллельна плоскости, лежать в ней,
     пересекать плоскость в точке.
     :param line: Объект линии
     :type line: Line
     :param plane: Объект плоскости
     :type plane: Plane
-    :return: 0, если линия пренадлежит плоскости, 1, если линия параллельна плоскости и не принадлежит ей, 2, если
+    :return: 0, если линия принадлежит плоскости, 1, если линия параллельна плоскости и не принадлежит ей, 2, если
     линия не параллельна плоскости и пересекает ее в какой-то точке
-    '''
+    """
     # Если var1 == 0 и var2 == 1, то линия либо в плоскости, если var1 != 0 и var2 == 1, то линия не в плоскости и
     # параллельна ей, если var2 != 1, то линия пересекает плоскость
     var1 = plane.a * line.a + plane.b * line.b + plane.c * line.c + plane.d
