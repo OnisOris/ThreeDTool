@@ -25,3 +25,8 @@ class TestLine:
         line_check = Line()
         line_check.line_create_from_points([10, -10, 0], [-10, 10, 0])
         assert equal_lines(line, line_check)
+
+    def test_point_belongs_to_the_line(self):
+        line = Line(0, 0, 0, 1000, 1000, 1000)
+        point = [10, 10, 10]
+        assert line.point_belongs_to_the_line(point)
