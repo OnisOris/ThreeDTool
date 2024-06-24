@@ -8,7 +8,9 @@ from .plane import Plane
 from .triangle import Triangle
 from .polygon import Polygon
 from .curve import Curve5x
+
 log = False
+
 
 def equal_lines(line1: Line, line2: Line) -> bool:
     """
@@ -19,11 +21,14 @@ def equal_lines(line1: Line, line2: Line) -> bool:
     :type line2: Line
     :return: bool
     """
-    if line1.point_belongs_to_the_line(line2.coeffs()[0:3]) and coplanar_vectors(line1.coeffs()[3:6], line2.coeffs()[3:6]):
+    if line1.point_belongs_to_the_line(line2.coeffs()[0:3]) and coplanar_vectors(line1.coeffs()[3:6],
+                                                                                 line2.coeffs()[3:6]):
         return True
     else:
         return False
-def coplanar_vectors(vector1, vector2) -> bool:
+
+
+def coplanar_vectors(vector1: ndarray | list, vector2: ndarray | list) -> bool:
     """
     Функция проверяет компланарность векторов
     :param vector1: Первый вектор
@@ -36,6 +41,7 @@ def coplanar_vectors(vector1, vector2) -> bool:
         return True
     else:
         return False
+
 
 def check_position_lines(line1: Line, line2: Line) -> int:
     """
