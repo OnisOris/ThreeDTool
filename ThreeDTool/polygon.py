@@ -85,8 +85,12 @@ class Polygon:
         for segment in self.__line_segments:
             for segment_out in polygon.get_line_segments():
                 point = point_from_segment_segment_intersection(segment_out, segment)
-                points = np.hstack([points, point])
-        return points
+                if point is not None:
+                    points = np.hstack([points, point])
+        if points.shape[0] > 0:
+            return points
+        else:
+            return None
 
     def point_analyze(self, point: np.ndarray) -> bool:
         """
