@@ -87,7 +87,10 @@ class Polygon:
                 point = point_from_segment_segment_intersection(segment_out, segment)
                 if point is not None:
                     points = np.vstack([points, point])
-        points = points[1:]
+        if np.shape(points) != (3,):
+            points = points[1:]
+        else:
+            return None
         if points.shape[0] > 0:
             return points
         else:
