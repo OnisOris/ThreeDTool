@@ -838,7 +838,11 @@ def perpendicular_line(line: Line, point: ndarray | list) -> Line:
     # Создание плоскости вращения
     point = np.array(point)
     plane = Plane()
-    plane.create_plane_from_triangle(np.array([point, line.coeffs()[0:3], line.offset_point(1)]), create_normal=True)
+    line_point = line.coeffs()[0:3]
+    # Проверка на совпадение точки из линии и поданной точки
+    if np.allclose(line_point, point, 1e-8):
+        line_point = point + line.coeffs()[3:6]
+    plane.create_plane_from_triangle(np.array([point, line_point, line.offset_point(1)]), create_normal=True)
     rot_vector = plane.get_N()
     full_vector = np.array([point,
                             line.coeffs()[3:6]])
