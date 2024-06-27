@@ -81,12 +81,13 @@ class Polygon:
         Функция находит точки пересечения с входящим прямоугольником
         """
         from .threeDTool import point_from_segment_segment_intersection
-        points = np.array([])
+        points = np.array([0, 0, 0])
         for segment in self.__line_segments:
             for segment_out in polygon.get_line_segments():
                 point = point_from_segment_segment_intersection(segment_out, segment)
                 if point is not None:
-                    points = np.hstack([points, point])
+                    points = np.vstack([points, point])
+        points = points[1:]
         if points.shape[0] > 0:
             return points
         else:
