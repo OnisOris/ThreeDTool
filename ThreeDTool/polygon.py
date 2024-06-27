@@ -76,6 +76,18 @@ class Polygon:
             segment.color = 'green'
             segment.show(ax)
 
+    def polygon_analyze(self, polygon: Polygon):
+        """
+        Функция находит точки пересечения с входящим прямоугольником
+        """
+        from .threeDTool import point_from_segment_segment_intersection
+        points = np.array([])
+        for segment in self.__line_segments:
+            for segment_out in polygon.get_line_segments():
+                point = tdt.point_from_segment_segment_intersection(segment_out, segment)
+                points = np.hstack([points, point])
+        return points
+
     def point_analyze(self, point: np.ndarray) -> bool:
         """
         Функция принимает точку и проверяет, находится ли точка внутри границ многогранника путем подсчета числа
