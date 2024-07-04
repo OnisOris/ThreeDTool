@@ -31,10 +31,10 @@ class Plane:
         :param d: Коэффициент d
         :type d: float
         """
-        self.__a = a
-        self.__b = b
-        self.__c = c
-        self.__d = d
+        self._a = a
+        self._b = b
+        self._c = c
+        self._d = d
 
     #
     def create_plane3(self, matrix: list | np.ndarray) -> np.ndarray:
@@ -47,50 +47,57 @@ class Plane:
         G = np.array([[-1], [-1], [-1]])
         abc = np.dot(np.linalg.inv(matrix), G)
         coefficients = np.array([abc.T[0][0], abc.T[0][1], abc.T[0][2], 1])
-        self.__a = coefficients[0]
-        self.__b = coefficients[1]
-        self.__c = coefficients[2]
-        self.__d = coefficients[3]
+        self._a = coefficients[0]
+        self._b = coefficients[1]
+        self._c = coefficients[2]
+        self._d = coefficients[3]
         return coefficients
 
     @property
     def a(self):
-        return self.__a
+        return self._a
 
     @property
     def b(self):
-        return self.__b
+        return self._b
 
     @property
     def c(self):
-        return self.__c
+        return self._c
 
     @property
     def d(self):
-        return self.__d
+        return self._d
 
     @a.setter
     def a(self, a):
-        self.__a = a
+        self._a = a
 
     @b.setter
     def b(self, b):
-        self.__b = b
+        self._b = b
 
     @c.setter
     def c(self, c):
-        self.__c = c
+        self._c = c
 
     @d.setter
     def d(self, d):
-        self.__d = d
+        self._d = d
+
+    def coeffs(self) -> np.ndarray:
+        """
+        Функция возвращает коэффициенты линии
+        :return: ndarray[float]
+        """
+        return np.array([self._a, self._b, self._c, self._d])
 
     def get_N(self) -> np.ndarray:
         """
         Возвращает координаты вектора нормали плоскости np.array([a, b, c])
         :return: np.ndarray
         """
-        return np.array([self.__a, self.__b, self.__c])
+        return np.array([self._a, self._b, self._c])
 
     def create_plane_from_triangle(self, triangle: np.ndarray | list,
                                    point: int = 1,
@@ -130,9 +137,9 @@ class Plane:
         else:
             a, b, c = vector_N[0], vector_N[1], vector_N[2]
         first_point = triangle[point]
-        self.__a, self.__b, self.__c = a, b, c
+        self._a, self._b, self._c = a, b, c
         #  Вычисление коэффициента D
-        self.__d = - self.__a * first_point[0] - self.__b * first_point[1] - self.__c * first_point[2]
+        self._d = - self._a * first_point[0] - self._b * first_point[1] - self._c * first_point[2]
 
     ###################
     #       0         # hight
@@ -206,12 +213,12 @@ class Plane:
         :param point_y: Точка y
         :return: np.ndarray | str
         """
-        if self.__c == 0:
+        if self._c == 0:
             return "Uncertainty z"
-        elif self.__b == 0 and self.__a == 0:
-            return -self.__d / self.__c
+        elif self._b == 0 and self._a == 0:
+            return -self._d / self._c
         else:
-            point_z = (-self.__a * point_x - self.__b * point_y - self.__d) / self.__c
+            point_z = (-self._a * point_x - self._b * point_y - self._d) / self._c
             return point_z
 
     def projection_y(self, point_x, point_z):
@@ -229,12 +236,12 @@ class Plane:
         :param point_z: Точка z
         :return: np.ndarray | str
         """
-        if self.__b == 0:
+        if self._b == 0:
             return "Uncertainty y"
-        elif self.__a == 0 and self.__c == 0:
-            return -self.__d / self.__b
+        elif self._a == 0 and self._c == 0:
+            return -self._d / self._b
         else:
-            point_y = (-self.__a * point_x - self.__c * point_z - self.__d) / self.__b
+            point_y = (-self._a * point_x - self._c * point_z - self._d) / self._b
         return point_y
 
     def projection_x(self, point_y, point_z):
@@ -252,12 +259,12 @@ class Plane:
         :param point_z: Точка z
         :return: np.ndarray | str
         """
-        if self.__a == 0:
+        if self._a == 0:
             return "Uncertainty x"
-        elif self.__b == 0 and self.__c == 0:
-            return -self.__d / self.__a
+        elif self._b == 0 and self._c == 0:
+            return -self._d / self._a
         else:
-            point_x = (-self.__b * point_y - self.__c * point_z - self.__d) / self.__a
+            point_x = (-self._b * point_y - self._c * point_z - self._d) / self._a
             return point_x
 
 
