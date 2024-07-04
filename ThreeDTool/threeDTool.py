@@ -21,24 +21,42 @@ def equal_lines(line1: Line, line2: Line) -> bool:
     :type line2: Line
     :return: bool
     """
-    if line1.point_belongs_to_the_line(line2.coeffs()[0:3]) and coplanar_vectors(line1.coeffs()[3:6],
-                                                                                 line2.coeffs()[3:6]):
+    if line1.point_belongs_to_the_line(line2.coeffs()[0:3]) and collinearity_vectors(line1.coeffs()[3:6],
+                                                                                     line2.coeffs()[3:6]):
         return True
     else:
         return False
 
 
-def coplanar_vectors(vector1: ndarray | list, vector2: ndarray | list) -> bool:
+def collinearity_vectors(vector1: ndarray | list, vector2: ndarray | list) -> bool:
     """
-    Функция проверяет компланарность векторов
+    Функция проверяет коллинеарность векторов
     :param vector1: Первый вектор
     :type vector1: list | np.ndarray
     :param vector2: Второй вектор
     :type vector2: Line
     :return: bool
     """
-    if np.round(np.linalg.norm(np.cross(vector1, vector2)), 5) == 0:
+    if np.round(np.linalg.norm(np.cross(vector1, vector2)), 5) == 0.0:
         return True
+    else:
+        return False
+
+
+def codirected(vector1: ndarray | list, vector2: ndarray | list) -> bool:
+    """
+    Функция проверяет сонаправленность векторов
+    :param vector1: первый вектор типа [x, y, z]
+    :type vector1: ndarray | list
+    :param vector2: ndarray | list
+    :type vector2: ndarray | list
+    :return: bool
+    """
+    if collinearity_vectors(vector1, vector2):
+        if np.allclose(normalization(vector1, 1), normalization(vector2, 1), 1e-6):
+            return True
+        else:
+            return False
     else:
         return False
 
@@ -271,6 +289,40 @@ def position_analyzer_of_line_and_plane(line: Line, plane: Plane):
     else:
         if log:
             logger.error("Что-то пошло не так, таких ситуаций в реальности не существует")
+
+
+def position_analyzer_of_plane_plane(plane1: Plane, plane2: Plane) -> int:
+    """
+    Данная функция определяет взаимное расположение плоскостей
+    Возвращает 0, если плоскости не параллельны и пересекаются
+    Возвращает 1, если плоскости совпадают
+    Возвращает 2, если плоскости параллельны и плоскость 2 находится в стороне
+    вектора нормали плоскости 1
+    Возвращает 3, если плоскости параллельны и плоскость 2 находится в противоположной стороне
+    вектора нормали плоскости 1
+    """
+    collinearity = collinearity_vectors(plane1.get_N(), plane2.get_N())
+    # В начале необходимо нормализовать все коэффициенты
+    coeffs1 = normalization(plane1.coeffs())
+    coeffs2 = normalization(plane2.coeffs())
+    if collinearity:
+        if codirected(plane1.get_N(), plane2.get_N()):
+            if np.allclose(coeffs1[3], coeffs2[3], 1e-6):
+                return 1
+            elif plane1.d > plane2.d:
+                return 2
+            else:
+                return 3
+        else:
+            if np.allclose(coeffs1[3], -coeffs2[3], 1e-6):
+                return 1
+            elif plane1.d < plane2.d:
+                return 2
+            else:
+                return 3
+    else:
+        return 0
+
 
 
 def position_analyze_of_triangle(triangle: list | np.ndarray, plane: Plane) -> (tuple[int, None] | tuple[int, Any] |
