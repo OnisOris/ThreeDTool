@@ -132,6 +132,7 @@ def point_from_line_line_intersection(line1, line2):
             logger.error("Прямые не пересекаются, либо совпадают")
         return False
 
+
 def point_from_plane_segment_intersection(segment, plane) -> Optional[np.ndarray] | None:
     """
     Функция находит координаты точки пересечения segment и plane.
@@ -149,6 +150,7 @@ def point_from_plane_segment_intersection(segment, plane) -> Optional[np.ndarray
             return None
     else:
         return None
+
 
 def point_from_plane_line_intersection(line, plane) -> Optional[np.ndarray]:
     """
@@ -339,7 +341,6 @@ def position_analyzer_of_plane_plane(plane1: Plane, plane2: Plane) -> int:
                 return 3
     else:
         return 0
-
 
 
 def position_analyze_of_triangle(triangle: list | np.ndarray, plane: Plane) -> (tuple[int, None] | tuple[int, Any] |
@@ -977,3 +978,24 @@ def rectangle_from_three_points(point1: list | ndarray, point2: list | ndarray, 
     B1 = point_from_line_line_intersection(B_B1_line, B1_A1_line)
     vertices = np.array([point1, point2, B1, A1])
     return Polygon(vertices)
+
+
+class Fvec:
+    def __init__(self, xyz: ndarray | list, vector: ndarray | list):
+        xyz = np.array(xyz)
+        vector = np.array(vector)
+        self.length = 1
+        if xyz.shape == (3,) and vector.shape == (3,):
+            self.full_vector = np.hstack([xyz, vector])
+        else:
+            raise Exception("Не соблюдена размерность входных данных")
+
+    def show(self, ax) -> None:
+        """
+        Функция отображает траекторию
+        :param ax:
+        :type ax: matplotlib.axes.Axes
+        :return: None
+        """
+        ax.quiver(self.full_vector[0], self.full_vector[1], self.full_vector[2], self.full_vector[3],
+                  self.full_vector[4], self.full_vector[5], length=self.length, color='r')

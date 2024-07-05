@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name='ThreeDTool',
-    version='0.0.3',
+    version='0.0.4',
     author='OnisOris',
     author_email='onisoris@yandex.ru',
     description='This module is needed to work in geometric primitives.',

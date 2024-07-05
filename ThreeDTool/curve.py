@@ -1,7 +1,6 @@
 from __future__ import annotations
 import numpy as np
 
-
 class Curve:
     """
     Класс представляет траекторию в 3D пространстве
