@@ -132,6 +132,23 @@ def point_from_line_line_intersection(line1, line2):
             logger.error("Прямые не пересекаются, либо совпадают")
         return False
 
+def point_from_plane_segment_intersection(segment, plane) -> Optional[np.ndarray] | None:
+    """
+    Функция находит координаты точки пересечения segment и plane.
+    :param line: Объект линии
+    :type line: Line
+    :param plane: объект класса плоскости
+    :type plane: Plane
+    :return: np.ndarray[x, y, z] or None
+    """
+    point = point_from_plane_line_intersection(segment, plane)
+    if point is not None:
+        if segment.point_belongs_to_the_segment(point):
+            return point
+        else:
+            return None
+    else:
+        return None
 
 def point_from_plane_line_intersection(line, plane) -> Optional[np.ndarray]:
     """
@@ -205,7 +222,7 @@ def point_from_beam_segment_intersection(beam, segment):
         return False
 
 
-def point_from_segment_segment_intersection(segment1, segment2):
+def point_from_segment_segment_intersection(segment1, segment2) -> None or ndarray:
     """
     Функция возвращает точку пересечения двух отрезков
     :param segment1: Объект первого отрезка
@@ -482,7 +499,7 @@ def point_comparison(point1, point2):
     point1 = np.round(point1, n)
     point2 = np.round(point2, n)
 
-    if np.shape(point1)[0] == 2:
+    if np.shape(point1) == (2,):
         point1 = np.hstack([point1, 0])
     if np.shape(point2)[0] == 2:
         point2 = np.hstack([point2, 0])
