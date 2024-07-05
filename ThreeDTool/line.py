@@ -114,7 +114,7 @@ class Line:
         :type point2: ndarray[float]
         :return: None
         """
-        if np.shape(point1)[0] == 2:
+        if np.shape(point1) == (2,):
             self._c = 0
             p3 = 0
         else:
