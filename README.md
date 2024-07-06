@@ -60,7 +60,7 @@ dp0.show()
 ```
 
 
-![alt text](./png/1.png "Title")
+![alt text](readme_files/1.png "Title")
 
 Для изучения данной функции повернем один из прямоугольников
 
@@ -106,7 +106,7 @@ dp.show()
 
 
     
-![alt text](./png/2.png "Title")
+![alt text](readme_files/2.png "Title")
     
 
 
@@ -123,7 +123,7 @@ dp.show()
 
 
     
-![alt text](./png/3.png "Title")
+![alt text](readme_files/3.png "Title")
     
 
 
@@ -136,6 +136,70 @@ dp.show()
 
 
     
-![alt text](./png/4.png "Title")
+![alt text](readme_files/4.png "Title")
     
+# Создание отрезков
+Создадим первый отрезок
+
+
+
+
+```python
+import ThreeDTool as tdt
+seg = tdt.Line_segment(point1=[-1, 9, -1], point2=[2, 12, 2])
+dp = tdt.Dspl([seg])
+dp.show()
+```
+
+
+    
+![png](readme_files/5.png)
+    
+
+
+Создадим второй отрезок
+
+
+```python
+seg2 = tdt.Line_segment(point1=[-200, -190, 0], point2=[200, 210, 0])
+# Поменяем цвет линии
+seg2.color = 'red'
+dp2 = tdt.Dspl([seg2])
+dp2.show()
+```
+
+
+    
+![png](readme_files/6.png)
+    
+
+
+Найдем точку пересечения отрезков
+
+
+```python
+point_inters = tdt.Points(tdt.point_from_segment_segment_intersection(seg, seg2), s=30, color='green')
+point_inters.xyz
+```
+
+
+
+
+    array([ 0., 10.,  0.])
+
+
+
+Изобразим отрезки и их пересечение
+
+
+```python
+dp3 = tdt.Dspl([seg, seg2, point_inters])
+dp3.show()
+```
+
+
+    
+![png](readme_files/7.png)
+
+
 

@@ -48,10 +48,8 @@ class Points:
         if self.text:
             if self.signs is not None:
                 for i, point in enumerate(self.xyz):
-                    ax.text(point[0], point[1], point[2],
-                            f"{self.signs[i]}\n{point[0], point[1], point[2]}", color='blue')
+                    ax.text(point[0], point[1], point[2], "{self.signs[i]}\n{point[0], point[1], point[2]}", color='blue')
             else:
                 for i, point in enumerate(self.xyz):
-                    ax.text(point[0], point[1], point[2],
-                            f"{point[0], point[1], point[2]}", color='blue')
+                    ax.text(point[0], point[1], point[2], f"{point[0], point[1], point[2]}", color='blue')
 
