@@ -203,3 +203,82 @@ dp3.show()
 
 
 
+# Генерация пятиосевой траектории
+В данном разделе мы сгенерируем одну локсодрому - это траектория, представляющая собой объемную спираль. После этого создадим вектора поворота в каждой точке для задания положения объекта.
+
+Скачаем файл с ограничесвающей STL моделью
+
+
+```python
+!curl -O https://raw.githubusercontent.com/OnisOris/5X3D-slicer/main/tests/test_functions/test_models/cube.stl
+```
+
+
+```python
+import trimesh
+import ThreeDTool as tdt
+import matplotlib as mpl
+import numpy as np
+
+# Путь до файла
+path = "/content/cube.stl"
+
+# Используем функцию open с параметром "r" (чтение)
+with open(path, 'r') as f:
+    # Парсим координаты нормалей и вершин треугольников в triangles
+    triangles, name = tdt.parse_stl(f)
+
+# Сохраним треугольники в tr. Каждый треугольник будет сохраняться в объект
+# класса Triangle
+tr = np.array([])
+for item in triangles:
+    tr = np.hstack([tr, tdt.Triangle(item)])
+
+# Создаем многогранник или полиэдр
+polyhedron = tdt.Polyhedron(tr)
+
+# Вычисление радиуса. Вычисляем максимальный радиус локсодромы.
+r = np.array([np.linalg.norm(polyhedron.get_min_max()[0]),
+              np.linalg.norm(polyhedron.get_min_max()[1])])
+rmax = np.max(r)/2
+point_n = polyhedron.get_median_point() - [0, 0.5, 0.5]
+# Генерация локсодромы
+arr = tdt.generate_loxodromes(r=rmax, point_n=point_n, steps=0.001)
+# Функция нарезания локосдромы объемом STL модели
+cc = tdt.cut_curve(arr[2], path)
+# Точка, с которой вычисляются вектора вертикального поворота (красные стрелки)
+center_point = point_n
+# Оборачиваем точку классом Points для удобства отображения
+center_p = tdt.Points([center_point], s=50, color='green', text=True)
+# Массив, куда мы сохраним пятизначные траектории
+curves5x = np.array([])
+for curve in cc:
+    # Класс обертка для пятиосевой траектории
+    out_curve = tdt.Curve5x()
+    for i, item in enumerate(curve.curve_array):
+        # Функция для вычисления вектора из двух точек
+        vector_z = tdt.vector_from_two_points(center_point, item)
+        vector_z[0] = 0
+        if i == curve.curve_array.shape[0] - 1:
+            point5 = out_curve[i - 1]
+        else:
+            vector_x = tdt.vector_from_two_points(curve.curve_array[i + 1],
+                                                  item)
+            vector_x[2] = 0
+            point5 = np.hstack([item, vector_z, vector_x])
+        out_curve.union(point5)
+        tdt.angles_from_vector(point5)
+    curves5x = np.hstack([curves5x, out_curve])
+# Отобразим все объекты, объеденив их в all_objects
+# (траектории - curves5x и точка - center_p)
+all_objects = np.hstack([curves5x, center_p])
+dp = tdt.Dspl(all_objects)
+# Отображение
+dp.show()
+```
+
+![png](./readme_files/8.png)
+    
+
+
+
