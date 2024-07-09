@@ -16,7 +16,7 @@ https://github.com/OnisOris/5X3D-slicer
 # Пример применение модуля
 
 ## Установка последней версии ThreeDTool с github.com
-Ставим модуль с помощью команды ниже с github
+Ставим модуль с помощью команды ниже с github.
 
 
 ```python
@@ -27,7 +27,7 @@ https://github.com/OnisOris/5X3D-slicer
 ## Анализ положения квадратов
 Создадим два квадрата с вершинами [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]  и [[1.5, 0, 0], [1.5, 1, 0], [0.5, 1, 0], [0.5, 0, 0]].
 
-Они находятся в одной плоскости и пересекаются. Найдем точки пересечения
+Они находятся в одной плоскости и пересекаются. Найдем точки пересечения.
 
 
 ```python
@@ -62,7 +62,7 @@ dp0.show()
 
 ![alt text](readme_files/1.png "Title")
 
-Для изучения данной функции повернем один из прямоугольников
+Для изучения данной функции повернем один из прямоугольников.
 
 
 ```python
@@ -110,7 +110,7 @@ dp.show()
     
 
 
-Как мы можем видеть, прямоугольники пересеклись в области, указанной синей линией. Красная стрелка показывает ось поворота квадрата, который был до этого в плоскости
+Как мы можем видеть, прямоугольники пересеклись в области, указанной синей линией. Красная стрелка показывает ось поворота квадрата, который был до этого в плоскости.
 
 
 ```python
@@ -139,7 +139,7 @@ dp.show()
 ![alt text](readme_files/4.png "Title")
     
 # Создание отрезков
-Создадим первый отрезок
+Создадим первый отрезок.
 
 
 
@@ -157,7 +157,7 @@ dp.show()
     
 
 
-Создадим второй отрезок
+Создадим второй отрезок.
 
 
 ```python
@@ -174,7 +174,7 @@ dp2.show()
     
 
 
-Найдем точку пересечения отрезков
+Найдем точку пересечения отрезков.
 
 
 ```python
@@ -189,7 +189,7 @@ point_inters.xyz
 
 
 
-Изобразим отрезки и их пересечение
+Изобразим отрезки и их пересечение.
 
 
 ```python
@@ -206,7 +206,7 @@ dp3.show()
 # Генерация пятиосевой траектории
 В данном разделе мы сгенерируем одну локсодрому - это траектория, представляющая собой объемную спираль. После этого создадим вектора поворота в каждой точке для задания положения объекта.
 
-Скачаем файл с ограничесвающей STL моделью
+Скачаем файл с ограничесвающей STL моделью.
 
 
 ```python
@@ -278,6 +278,93 @@ dp.show()
 ```
 
 ![png](./readme_files/8.png)
+
+
+# Нарезание моделей
+В данном примере мы будем нарезать STL модель с помощью плоскости, которая будет постепенно подниматься с самой нижней точки на определенное расстояние - высоту слоя thick.
+
+Использовать для работы мы будем тот же файл, что и ранее cube.stl
+
+
+```python
+!curl -O https://raw.githubusercontent.com/OnisOris/5X3D-slicer/main/tests/test_functions/test_models/cube.stl
+```
+
+```python
+from ThreeDTool import *
+import matplotlib as mpl
+
+# Путь до файла
+path = "/content/cube.stl"
+file = open(path, "r")
+parser = Parser_stl()
+triangles, name = parser.parse_stl(file)
+file.close()
+
+def slicing(triangles, thiсk=0.1):
+    # Находим пограничные координаты модели:
+    max_xyz, min_xyz = max_min_points(triangles)
+    # Находим минимальную координату:
+    z_min = min_xyz[2]
+    # Находим самую высокую часть модели:
+    z_max = max_xyz[2]
+    # Найдем высоту модели:
+    hight = distance_between_two_points(z_min, z_max)
+    # Количество слоев:
+    amount_of_layers = hight / thiсk
+    plane_array = np.array([])
+    # Плоскость нарезания
+    slice_plane = Plane(0, 0, 1, -z_min)
+    points_array = []
+    # Пройдем по всем слоям
+    for _ in range(int(amount_of_layers)):
+        # Пройдемся по всем треугольникам
+        for triangle in triangles:
+            try:
+                position_index, points = position_analyze_of_triangle(triangle, slice_plane)
+            except TypeError:
+                logger.error(f"error")
+            if position_index == 2:
+                # Создаем плоскость треугольника
+                plane = Plane()
+                # Функция создания плоскости из треугольника
+                plane.create_plane_from_triangle(triangle, create_normal=True)
+                # Создаем линию пересечения плоскостей треугольника и плоскости слайсинга
+                line = Line()
+                line.line_from_planes(plane, slice_plane)
+                # Линии из вершин треугольников
+                line1 = Line()
+                line1.line_create_from_points(points[0, 0], points[0, 1])
+                line2 = Line()
+                line2.line_create_from_points(points[1, 0], points[1, 1])
+                # Точки пересечения линий
+                point1 = point_from_line_line_intersection(line, line1)
+                point2 = point_from_line_line_intersection(line, line2)
+                if point1.__class__ == np.ndarray:
+                    points_array.append(point1)
+                if point2.__class__ == np.ndarray:
+                    points_array.append(point2)
+        slice_plane.d -= 0.1
+    points_array = np.array(points_array)
+    u, idx = np.unique(points_array, axis=0, return_index=True)
+    points_array = u[idx.argsort()]
+    return points_array.T
+
+points = slicing(triangles)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(points[0], points[1], points[2])
+ax.set_xlabel('X Label')
+ax.set_ylabel('Y Label')
+ax.set_zlabel('Z Label')
+plt.show()
+
+```
+
+
+    
+![png](./readme_files/9.png)
     
 
 
