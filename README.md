@@ -13,7 +13,7 @@ An example of using the library is here:
 
 https://github.com/OnisOris/5X3D-slicer
 
-# Пример применение модуля
+# Пример применения модуля
 
 ## Установка последней версии ThreeDTool с github.com
 Ставим модуль с помощью команды ниже с github.
