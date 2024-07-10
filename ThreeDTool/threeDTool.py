@@ -284,7 +284,7 @@ def position_analyzer_of_point_and_plane(point: list or np.ndarray, plane: Plane
         return 0
 
 
-def position_analyzer_of_line_and_plane(line: Line, plane: Plane):
+def position_analyzer_of_line_and_plane(line: Line, plane: Plane) -> int:
     """
     Функция анализирует положение линии относительно плоскости. Линия может быть: параллельна плоскости, лежать в ней,
     пересекать плоскость в точке.
@@ -556,7 +556,7 @@ def loxodrome(angle: float = 0,
               R: float = 70,
               count_of_rot: float = 17,
               step: float = 0.0025,
-              point_n: ndarray = np.array([0, 0, 0])):
+              point_n: ndarray = np.array([0, 0, 0])) -> ndarray:
     """
     Функция генерирует локсодрому
     :param angle: Вертикальный угол
@@ -625,12 +625,12 @@ def generate_loxodromes(r: float = 10.0,
     return curves
 
 
-def matrix_dot_all(self, array_matrix):
+def matrix_dot_all(self, array_matrix) -> ndarray:
     T0_2 = array_matrix[0].dot(array_matrix[1])
     return T0_2
 
 
-def matrix_create(cja: list or ndarray, DH: dict):
+def matrix_create(cja: list or ndarray, DH: dict) -> ndarray:
     """
     Функция создает матрицы преобразования координат на основе DH параметров
     :param cja: Углы поворота типа [angle_1, ....., angle_n]
@@ -678,7 +678,7 @@ def show_ijk(ax, matrix: ndarray) -> None:
         ax.quiver(n[0], n[1], n[2], vector[0], vector[1], vector[2], color=colors[i])
 
 
-def angles_from_vector(curve: Curve5x):
+def angles_from_vector(curve: Curve5x) -> tuple[Any, Any]:
     """
     Функция вычисляет углы поворота для поворотного стола на основе пятиосевой траектории
     :param curve: Объект, хранящий пятиосевую траекторию
@@ -690,7 +690,7 @@ def angles_from_vector(curve: Curve5x):
     return alpha, beta
 
 
-def trajectory_generate(h: float = 10, line_width: float = 1):
+def trajectory_generate(h: float = 10, line_width: float = 1) -> ndarray:
     """
     Функция создает квадратную спираль
     :param h: Высота
