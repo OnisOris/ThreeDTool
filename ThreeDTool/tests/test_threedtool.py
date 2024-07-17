@@ -131,11 +131,29 @@ class TestThreedtool:
         plane2 = Plane(2, 2, 2, 5)
         assert position_analyzer_of_plane_plane(plane1, plane2) == 3
 
+    # test_point_from_plane_segment_intersection ---------------------------
     def test_point_from_plane_segment_intersection(self):
         plane = Plane(0, 0, 1, 1)
         segment = Line_segment(point1=[1, 1, -2], point2=[1, 1, 2])
         point = point_from_plane_segment_intersection(segment, plane)
-        logger.debug(point)
-        print(point)
         assert np.allclose(point, [1., 1., -1.], 1e-8)
 
+    # test_point_from_plane_line_intersection ---------------------------
+    def test_point_from_plane_line_intersection(self):
+        plane = Plane(0, 0, 1, 1)
+        line = Line(1, 1, 0, 0, 0, 1)
+        point = point_from_plane_line_intersection(line, plane)
+        assert np.allclose(point, [1., 1., -1.], 1e-8)
+
+    # point_from_line_segment_intersection ---------------------------
+    def test_point_from_line_segment_intersection(self):
+        segment = Line_segment(point1=[1, 1, 0], point2=[-1, -1, 0])
+        line = Line(1, -1, 0, 1, -1, 0)
+        point = point_from_line_segment_intersection(line, segment)
+        assert np.allclose(point, [0., 0., 0.], 1e-8)
+
+    def test_point_from_line_segment_intersection_not(self):
+        segment = Line_segment(point1=[1, 1, 0], point2=[-1, -1, 0])
+        line = Line(1, -1, 0, 1, -1, 0)
+        point = point_from_line_segment_intersection(line, segment)
+        assert np.allclose(point, [0., 0., 0.], 1e-8)
