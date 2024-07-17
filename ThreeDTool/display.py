@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import numpy as np
 
 
 class Dspl:
@@ -30,6 +31,16 @@ class Dspl:
         self.ax.set_xlabel('X Label')
         self.ax.set_ylabel('Y Label')
         self.ax.set_zlabel('Z Label')
+
+    # def check_points(self) -> None:
+    #     from points import Points
+    #     for object in self.input_array:
+    #         if type(object) == np.ndarray:
+    #             if object.ndim == 1:
+    #                 if object.shape == (3,):
+    #                     object = Points(object)
+    #                 elif
+    #             elif object.shape == (1, 3):
 
     def show(self) -> None:
         """
