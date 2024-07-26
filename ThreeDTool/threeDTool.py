@@ -436,10 +436,10 @@ def distance_between_two_points(point1: float | int, point2: float | int) -> flo
 
 def vector_from_two_points(point1, point2) -> np.ndarray:
     """
-    Данная функция создает вектор из двух точек
+    Данная функция создает вектор из двух точек, направленный из point1 в point2
     :param point1: Первая точка типа [x, y, z] или [x, y]
     :type point1: list or np.ndarray
-    :param point2: Первая точка типа [x, y, z] или [x, y]
+    :param point2: Вторая точка типа [x, y, z] или [x, y]
     :type point2: list or np.ndarray
     :return: np.ndarray
     """
@@ -452,7 +452,7 @@ def vector_from_two_points(point1, point2) -> np.ndarray:
 
 def normal_of_triangle(vertex1, vertex2, vertex3) -> np.ndarray:
     """
-    Функция генерирует вектор нормали треугольника по правиле правого винта
+    Функция генерирует вектор нормали треугольника по правилу правого винта
     :param vertex1: Первая вершина треугольника
     :type vertex1: list or np.ndarray
     :param vertex2: Вторая вершина треугольника
@@ -979,6 +979,46 @@ def rectangle_from_three_points(point1: list | ndarray, point2: list | ndarray, 
     vertices = np.array([point1, point2, B1, A1])
     return Polygon(vertices)
 
+def rectangle_from_center(center_point: list | ndarray, length: int | float, width: int | float,
+                          vector_length: list | ndarray,
+                          vector_plane: list | ndarray) -> Polygon:
+    """
+    Функция создает прямоугольник по центру, длине, ширине и двум векторам, один из которых коллинеарен длине, а второй
+    лежит в плоскости прямоугольника
+    Вектор коллинеарный ширине является направляющим для прямой пересечения плоскости прямоугольника и плоскости,
+    нормальной к вектору длины и проходящей через точку центра.
+
+    :param center_point: точка центра
+    :type center_point: list | ndarray
+    :param length: Длина
+    :type length: list | ndarray
+    :param width: Ширина
+    :type width: list | ndarray
+    :param vector_length: Вектор, коллинеарный длине
+    :type vector_length: list | ndarray
+    :param vector_plane: Вектор, лежащий в плоскости прямоугольника, неколлинеарный vec_length
+    :type vector_plane: list | ndarray
+    :return: Polygon
+    """
+    from .polygon import Polygon
+    half_length = length / 2
+    half_width = width / 2
+    if collinearity_vectors(vector_length, vector_plane):
+        raise(ValueError("Vectors are collinear"))
+    plane = Plane()
+    plane.create_plane_from_triangle([[0, 0, 0], vector_length, vector_plane], create_normal=True)
+    plane_norm = Plane()
+    plane_norm.create_plane_from_triangle([vector_length, center_point, [0, 0, 0], [0, 0, 0]], create_normal=False)
+    line = Line()
+    line.line_from_planes(plane1=plane, plane2=plane_norm)
+    vector_width = line.coeffs()[3:]
+
+    point1 = center_point + normalization(vector_length, half_length) + normalization(vector_width, half_width)
+    point2 = center_point + normalization(vector_length, half_length) - normalization(vector_width, half_width)
+    point3 = center_point - normalization(vector_length, half_length) - normalization(vector_width, half_width)
+    point4 = center_point - normalization(vector_length, half_length) + normalization(vector_width, half_width)
+    vertices = np.array([point1, point2, point3, point4])
+    return Polygon(vertices)
 
 def parse_stl(file):
     """
