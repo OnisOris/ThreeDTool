@@ -981,12 +981,10 @@ def rectangle_from_three_points(point1: list | ndarray, point2: list | ndarray, 
 
 def rectangle_from_center(center_point: list | ndarray, length: int | float, width: int | float,
                           vector_length: list | ndarray,
-                          vector_plane: list | ndarray) -> Polygon:
+                          vector_norm: list | ndarray) -> Polygon:
     """
     Функция создает прямоугольник по центру, длине, ширине и двум векторам, один из которых коллинеарен длине, а второй
-    лежит в плоскости прямоугольника
-    Вектор коллинеарный ширине является направляющим для прямой пересечения плоскости прямоугольника и плоскости,
-    нормальной к вектору длины и проходящей через точку центра.
+    является нормалью к плоскости прямоугольника
 
     :param center_point: точка центра
     :type center_point: list | ndarray
@@ -996,19 +994,20 @@ def rectangle_from_center(center_point: list | ndarray, length: int | float, wid
     :type width: list | ndarray
     :param vector_length: Вектор, коллинеарный длине
     :type vector_length: list | ndarray
-    :param vector_plane: Вектор, лежащий в плоскости прямоугольника, неколлинеарный vec_length
-    :type vector_plane: list | ndarray
+    :param vector_norm: Вектор, являющйся нормалью к плоскости прямоугольника
+                        (следовательно необходима перпендикулярность к vector_length)
+    :type vector_norm: list | ndarray
     :return: Polygon
     """
     from .polygon import Polygon
     half_length = length / 2
     half_width = width / 2
-    if collinearity_vectors(vector_length, vector_plane):
-        raise(ValueError("Vectors are collinear"))
+    if round(np.dot(vector_length, vector_norm), 5) != 0:
+        raise (ValueError("Vectors are not perpendicular"))
     plane = Plane()
-    plane.create_plane_from_triangle([[0, 0, 0], vector_length, vector_plane], create_normal=True)
+    plane.create_plane_from_triangle([vector_norm, center_point, np.empty(3), np.empty(3)], create_normal=False)
     plane_norm = Plane()
-    plane_norm.create_plane_from_triangle([vector_length, center_point, [0, 0, 0], [0, 0, 0]], create_normal=False)
+    plane_norm.create_plane_from_triangle([vector_length, center_point, np.empty(3), np.empty(3)], create_normal=False)
     line = Line()
     line.line_from_planes(plane1=plane, plane2=plane_norm)
     vector_width = line.coeffs()[3:]
@@ -1018,6 +1017,7 @@ def rectangle_from_center(center_point: list | ndarray, length: int | float, wid
     point3 = center_point - normalization(vector_length, half_length) - normalization(vector_width, half_width)
     point4 = center_point - normalization(vector_length, half_length) + normalization(vector_width, half_width)
     vertices = np.array([point1, point2, point3, point4])
+
     return Polygon(vertices)
 
 def parse_stl(file):
