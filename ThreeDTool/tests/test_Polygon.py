@@ -1,17 +1,41 @@
 from ..polygon import Polygon
 import numpy as np
 
+
 class TestPolygon:
+    # polygons_equal ---------------------------
     def test_polygons_equal(self):
         pol1 = Polygon(np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]))
         pol2 = Polygon(np.array([[1, 0, 0], [1, 1, 0], [0, 1, 0], [0, 0, 0]]))
         assert pol1.polygons_equal(pol2)
 
     def test_polygons_equal2(self):
+        pol1 = Polygon(np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]))
+        pol2 = Polygon(np.array([[1, 0, 0], [0, 0, 0], [0, 1, 0], [1, 1, 0]]))
+        assert pol1.polygons_equal(pol2)
+
+    def test_polygons_equal3(self):
+        pol1 = Polygon(np.array([[0, 0, 0.000000004], [1, -0.000000003, 0], [1, 1, 0], [0, 1, 0]]))
+        pol2 = Polygon(np.array([[1, 0.000000003, 0], [0, 0, 0], [0, 1, 0], [1.000000004, 1, 0]]))
+        assert pol1.polygons_equal(pol2)
+
+    # incorrect
+    def test_polygons_equal4(self):
         pol1 = Polygon(np.array([[0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]]))
         pol2 = Polygon(np.array([[1.5, 0, 0], [1.5, 1, 0], [0.5, 1, 0], [0.5, 0, 0]]))
         assert not pol1.polygons_equal(pol2)
 
+    def test_polygons_equal5(self):
+        pol1 = Polygon(np.array([[0, 0, 0], [1, 0.00000004, 0], [1, 1, 0], [0, 1, 0]]))
+        pol2 = Polygon(np.array([[1, 0, 0], [0, 0, 0], [0, 1, 0], [1, 1, 0]]))
+        assert not pol1.polygons_equal(pol2)
+
+    def test_polygons_equal6(self):
+        pol1 = Polygon(np.array([[0, 0, 0.], [1, -0.000000003, 0], [1, 1, 0], [0, 1, 0]]))
+        pol2 = Polygon(np.array([[1, 0.000000009, 0], [0, 0, 0], [0, 1, 0], [1, 1, 0]]))
+        assert not pol1.polygons_equal(pol2)
+
+    # points_from_polygon_polygon_intersection_and_rot_v ---------------------------
     def test_points_from_polygon_polygon_intersection_and_rot_v(self):
         from ..threeDTool import rot_v
         pol1 = Polygon(np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]))
