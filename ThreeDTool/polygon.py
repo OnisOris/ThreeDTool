@@ -86,7 +86,7 @@ class Polygon:
 
     def intersection_analyze(self, polygon: Polygon):
         """
-        Функция находит точки пересечения с входящим прямоугольником
+        Функция находит точки пересечения с входящим многоугольником
         """
         from .threeDTool import point_from_segment_segment_intersection
         points = np.array([0, 0, 0])
@@ -162,22 +162,23 @@ class Polygon:
         начиная с этой вершины. Если после сортировки массивы оказываются одинаковы, то многоугольники одинаковы.
         :param polygon: изучаемый полигон
         :type polygon: Polygon
-        :return: ndarray[Any, dtype[Any]] | None
+        :return: bool | None
         """
         vert1 = self.vertices
         vert2 = polygon.vertices
         sort_vert = vert1[0]
-        indices = np.where((vert2 == sort_vert).all(axis=1))[0]
+        indices = np.where((np.isclose(sort_vert, vert2, 1e-6)).all(axis=1))[0]
         if self.vertices.shape != polygon.vertices.shape:
             return False
         else:
             if indices.shape == (0,):
                 return False
             elif indices.shape == (1,):
-                vert2 = np.roll(vert2, indices[0])
+                vert2 = np.roll(vert2, -indices[0], axis=0)
+                vert2_rev = np.vstack([vert2[0], vert2[-1:0:-1]])
             else:
                 raise Exception("Пришел сломанный многоугольник")
-        if np.allclose(vert1, vert2, 1e-6):
+        if np.allclose(vert1, vert2, 1e-6) or np.allclose(vert1, vert2_rev, 1e-6):
             return True
         else:
             return False
@@ -231,8 +232,8 @@ class Polygon:
         """
         from .threeDTool import point_from_beam_segment_intersection, point_comparison
         line = Line()
-        tets_point = np.array(self._barycenter)
-        line.line_create_from_points(point, tets_point)
+        test_point = np.array(self._barycenter)
+        line.line_create_from_points(point, test_point)
         arr = np.array([[0, 0, 0]])
         for i, item in enumerate(self._line_segments):
             p = np.array(point_from_beam_segment_intersection(line, item))
@@ -253,7 +254,7 @@ class Polygon:
 
     def points_from_polygon_polygon_intersection(self, polygon: Polygon) -> ndarray[Any, dtype[Any]] | None:
         """
-        Функция возвращает пересечение входящего полигона с self полигоном
+        Функция возвращает точки пересечения входящего полигона с self полигоном
         :param polygon: изучаемый полигон
         :type polygon: Polygon
         :return: ndarray[Any, dtype[Any]] | None
@@ -268,24 +269,24 @@ class Polygon:
             plane1.create_plane_from_triangle(self._vertices[0:3], create_normal=True)
             plane2 = Plane()
             plane2.create_plane_from_triangle(polygon._vertices[0:3], create_normal=True)
-            points = np.array([[0, 0, 0]])
+            points = np.array([]).reshape(0, 3)
             var = position_analyzer_of_plane_plane(plane1, plane2)
-            points_return = np.array([[0, 0, 0]])
+            points_return = np.array([]).reshape(0, 3)
             if var == 0:
                 for segment in polygon._line_segments:
                     point_in = point_from_plane_segment_intersection(segment, plane1)
                     if point_in is not None:
                         points = np.vstack([points, point_in])
-                points = points[1:]
-                if points.shape == (0,):
+                points = points
+                if points.shape == (0, 3):
                     return None
                 else:
                     for point in points:
                         var = self.point_analyze(point)
                         if var:
                             points_return = np.vstack([points_return, point])
-                if points_return.shape != (0,):
-                    return points_return[1:]
+                if points_return.shape != (0, 3):
+                    return points_return
                 else:
                     return None
             elif var == 1:
@@ -294,10 +295,10 @@ class Polygon:
                         point_int = point_from_segment_segment_intersection(segment, self_segment)
                         if point_int is not None:
                             points_return = np.vstack([points_return, point_int])
-            if points_return.shape == (0,):
+            if points_return.shape == (0, 3):
                 return None
             else:
-                return points_return[1:]
+                return points_return
 
 
 class Polygon_2D:
