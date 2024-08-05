@@ -162,22 +162,23 @@ class Polygon:
         начиная с этой вершины. Если после сортировки массивы оказываются одинаковы, то многоугольники одинаковы.
         :param polygon: изучаемый полигон
         :type polygon: Polygon
-        :return: ndarray[Any, dtype[Any]] | None
+        :return: bool | None
         """
         vert1 = self.vertices
         vert2 = polygon.vertices
         sort_vert = vert1[0]
-        indices = np.where((vert2 == sort_vert).all(axis=1))[0]
+        indices = np.where((np.isclose(sort_vert, vert2, 1e-6)).all(axis=1))[0]
         if self.vertices.shape != polygon.vertices.shape:
             return False
         else:
             if indices.shape == (0,):
                 return False
             elif indices.shape == (1,):
-                vert2 = np.roll(vert2, indices[0])
+                vert2 = np.roll(vert2, -indices[0], axis=0)
+                vert2_rev = np.vstack([vert2[0], vert2[-1:0:-1]])
             else:
                 raise Exception("Пришел сломанный многоугольник")
-        if np.allclose(vert1, vert2, 1e-6):
+        if np.allclose(vert1, vert2, 1e-6) or np.allclose(vert1, vert2_rev, 1e-6):
             return True
         else:
             return False
