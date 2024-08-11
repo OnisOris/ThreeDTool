@@ -307,7 +307,7 @@ class Line_segment(Line):
         self.border_x.sort()
         self.border_y.sort()
         self.border_z.sort()
-        self.lenth = np.linalg.norm(self.point1 - self.point2)
+        self.length = np.linalg.norm(self.point1 - self.point2)
 
     def info(self) -> None:
         """
