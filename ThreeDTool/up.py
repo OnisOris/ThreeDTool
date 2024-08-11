@@ -21,7 +21,9 @@ class Up(np.ndarray):
 
     def __init__(self, *args, **kwargs):
         """
-        :param v: Отображение в виде вектора
+        :param v: Отображение в виде вектора, первая точка - координата вектора
+        :param plot: Отображение в виде графика
+        :param scatter: Отображение в виде точек (стандартное состояние)
         """
         self.color = "green"
         self.v = False
@@ -171,3 +173,24 @@ class Up(np.ndarray):
                 ax.scatter(self.T[0], self.T[1], self.T[2], color=self.color, s=self.s, marker=self.marker)
             elif self.shape[0] > 1 and self.shape[1] == 2:
                 ax.scatter(self.T[0], self.T[1], color=self.color, s=self.s, marker=self.marker)
+
+
+class Mup(Up):
+    """
+    Данный класс представляет собой матрицу nx3/ nx2, первая строка - координата вектора, вторая и
+     последующие - вектора ориентации. Отличается от Up тем, что имеет методы и поля для представления объекта класса,
+     как материальную точку с массой m, движущуюся в трехмерном пространстве
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.mass = 1
+        self.acc = np.array([0, 0, 0])
+        self.speed = np.array([0, 0, 0])
+
+    def set_speed(self, speed: list | np.ndarray):
+        self.speed = np.array(speed)[0:3]
+
+
+
+
