@@ -10,4 +10,5 @@ from .surface import *
 from .threeDTool import *
 from .triangle import *
 from .twoDTool import *
+from .up import *
 
