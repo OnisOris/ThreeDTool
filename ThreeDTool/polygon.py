@@ -12,7 +12,7 @@ class Polygon:
     Данный класс представляет собой многогранник, состоящий из координат вершин
     """
 
-    def __init__(self, vertices: np.ndarray):
+    def __init__(self, vertices: np.ndarray | list):
         """
         :param vertices: Вершины типа [[x1, y1, z1], ......., [xn, yn, zn]]
         :type vertices: np.ndarray
