@@ -184,5 +184,3 @@ fabric.properties
 .idea/
 **/__pycache__/
 *.pyc
-
-./python_ap/Manipulator_control_python/.idea
